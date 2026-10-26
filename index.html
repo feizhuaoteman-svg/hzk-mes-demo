@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>杭申电气 · 生产线智能监控系统</title>
+<style>
+:root{--bg:#f2f7fd;--card:#fff;--line:#dbe7f3;--muted:#5a7189;--ink:#12283f;--brand:#0e5b9f;--cyan:#0899d6;--teal:#0fb5a3;--green:#0aa06e;--amber:#f59e0b;--red:#e5484d;--violet:#7c5cff;--side-w:246px;--side1:#082645;--side2:#0b3f70}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:14px/1.6 system-ui,-apple-system,"PingFang SC",sans-serif;color:var(--ink);background:var(--bg)}
+a{color:var(--cyan);text-decoration:none}
+.app{display:flex;min-height:100vh}
+.side{position:fixed;left:0;top:0;bottom:0;width:var(--side-w);display:flex;flex-direction:column;background:linear-gradient(180deg,var(--side1),var(--side2));color:#dce9f5;z-index:20}
+.side .brand{display:flex;align-items:center;gap:10px;padding:16px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.side .brand img{width:38px;height:38px;object-fit:contain;background:rgba(255,255,255,.12);border-radius:10px;padding:4px}
+.side .brand b{display:block;font-size:14px;color:#fff}
+.side .brand small{display:block;font-size:9.5px;letter-spacing:1.2px;color:#8fc3e8}
+.nav{flex:1;overflow:auto;padding:8px 9px 4px}
+.nav .grp{font-size:10.5px;letter-spacing:1.5px;color:#6fa4c9;padding:12px 10px 5px;font-weight:700;display:flex;align-items:center;gap:6px}
+.nav .grp::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.09)}
+.nav a{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;color:#cfe3f2;font-size:13px;margin:1px 0;transition:.14s}
+.nav a:hover{background:rgba(255,255,255,.09);color:#fff}
+.nav a.on{background:linear-gradient(100deg,rgba(8,153,214,.95),rgba(15,181,163,.85));color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(6,120,180,.35)}
+.nav a.sub{padding-left:26px;font-size:12.5px}
+.nav a .ico{width:16px;text-align:center;opacity:.95;font-size:13px}
+.nav a .nbadge{margin-left:auto;background:#e5484d;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px}
+.userbox{margin:8px 9px 0;padding:9px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;gap:9px;cursor:pointer}
+.userbox:hover{background:rgba(255,255,255,.13)}
+.userbox .av{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(140deg,#0899d6,#0fb5a3);flex:none;font-size:13px}
+.userbox .who b{display:block;font-size:12.5px;color:#fff}
+.userbox .who small{font-size:10px;color:#9cc4e0}
+.userbox .caret{margin-left:auto;font-size:9px;color:#9cc4e0}
+.usermenu{position:absolute;left:9px;right:9px;bottom:72px;background:#fff;color:var(--ink);border-radius:11px;box-shadow:0 16px 40px rgba(4,20,36,.45);padding:5px;display:none;z-index:30}
+.usermenu.show{display:block}
+.usermenu .uh{padding:8px 11px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+.usermenu .uh b{color:var(--ink);font-size:12.5px}
+.usermenu button{width:100%;text-align:left;border:none;background:none;padding:8px 11px;border-radius:7px;cursor:pointer;font-size:12.5px;color:var(--ink)}
+.usermenu button:hover{background:#f0f7ff}
+.sidefoot{padding:10px 16px 14px;font-size:10.5px;color:#8fb8d6;border-top:1px solid rgba(255,255,255,.1);line-height:1.85}
+.sidefoot .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2ee6a8;margin-right:5px;box-shadow:0 0 6px #2ee6a8}
+.sidefoot .dot.off{background:#e5484d;box-shadow:0 0 6px #e5484d}
+.main{margin-left:var(--side-w);flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:0 20px;height:58px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.crumb{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+.crumb b{color:var(--ink);font-size:13.5px;margin-left:5px}
+.crumb .sep{margin:0 6px;color:#b9cddd}
+.search{position:relative;margin-left:12px;width:230px}
+.search input{width:100%;border:1px solid var(--line);border-radius:9px;padding:7px 11px 7px 30px;font-size:12.5px;outline:none;background:#f8fbff}
+.search input:focus{border-color:var(--cyan);background:#fff;box-shadow:0 0 0 3px rgba(8,153,214,.1)}
+.search .sic{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.5}
+.sres{position:absolute;top:38px;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(14,91,159,.18);max-height:320px;overflow:auto;display:none;z-index:40}
+.sres.show{display:block}
+.sres div{padding:8px 12px;font-size:12.5px;cursor:pointer;border-bottom:1px solid #f0f5fa}
+.sres div:hover{background:#f0f7ff}
+.sres .st{font-size:10.5px;color:var(--muted);margin-left:6px}
+.chips{margin-left:auto;display:flex;align-items:center;gap:7px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 11px;font-size:11.5px;color:#33506c;font-weight:600;white-space:nowrap}
+.chip.ok{border-color:#9be0c2;background:#eafaf3;color:#0a7d55}
+.chip.bad{border-color:#ffb3ad;background:#fff1f0;color:#b3261e}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.chip.bad .dot{background:var(--red)}
+.icon-btn{position:relative;width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;font-size:14px;color:#33506c}
+.icon-btn:hover{border-color:var(--cyan);background:#f0f9ff}
+.icon-btn .bdot{position:absolute;top:-4px;right:-4px;min-width:15px;height:15px;border-radius:8px;background:var(--red);color:#fff;font-size:9.5px;font-weight:700;place-items:center;padding:0 3px;display:none}
+.content{padding:18px 20px 8px;flex:1}
+.view{display:none}
+.view.on{display:block;animation:fade .16s ease}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.pagehead{display:flex;align-items:flex-end;gap:12px;margin:2px 0 14px;flex-wrap:wrap}
+.pagehead h1{font-size:20px;margin:0}
+.pagehead .desc{color:var(--muted);font-size:12px;margin:2px 0 0}
+.pagehead .acts{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap}
+.card{background:var(--card);border:1px solid #dce8f4;border-radius:14px;padding:16px 18px;box-shadow:0 4px 14px rgba(14,91,159,.06)}
+.card h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.card h2::before{content:"";width:4px;height:15px;border-radius:2px;background:linear-gradient(180deg,var(--cyan),var(--teal))}
+.card h2 small{font-weight:400;color:var(--muted);font-size:11.5px}
+.grid2{display:grid;grid-template-columns:1.15fr 1fr;gap:13px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.mt{margin-top:13px}
+.muted{color:var(--muted)}
+small{color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:13px}
+.kpis .k{position:relative;overflow:hidden;background:#fff;border:1px solid #dce8f4;border-radius:13px;padding:13px 15px;box-shadow:0 4px 14px rgba(14,91,159,.07);cursor:pointer;transition:.15s}
+.kpis .k:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(14,91,159,.14)}
+.kpis .k::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.kpis .k::after{content:"";position:absolute;right:-16px;top:-16px;width:60px;height:60px;border-radius:50%;background:var(--c);opacity:.1}
+.kpis .k .lb{font-size:11.5px;color:var(--muted);font-weight:700}
+.kpis .k .nm{font-size:26px;font-weight:800;color:var(--c);line-height:1.2}
+.kpis .k .mini{font-size:10.5px}
+.kpis .k:nth-child(1){--c:#0e5b9f}.kpis .k:nth-child(2){--c:#0aa06e}.kpis .k:nth-child(3){--c:#f59e0b}.kpis .k:nth-child(4){--c:#e5484d}.kpis .k:nth-child(5){--c:#7c5cff}
+.btn{border:1px solid #c3d8ec;background:#fff;color:var(--ink);border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.14s}
+.btn:hover{border-color:var(--cyan);background:#f0f9ff}
+.btn.primary{color:#fff;border:none;background:linear-gradient(120deg,var(--cyan),var(--teal));box-shadow:0 4px 14px rgba(8,153,214,.3)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.sm{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.6;cursor:wait}
+.alerts{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow:auto}
+.alert{border:1px solid #e3edf7;border-left:4px solid var(--amber);border-radius:10px;padding:9px 12px;background:#fffdf8}
+.alert.critical{border-left-color:var(--red);background:#fff6f5}
+.alert .t{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.badge{display:inline-block;background:#e8f1fb;color:#0e5b9f;border-radius:10px;padding:1px 8px;font-size:10.5px;font-weight:700}
+.badge.gray{background:#eef2f6;color:#7a8fa3}
+.alert .unreadDot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 3px rgba(229,72,77,.15);flex:none}
+.alert.unread{border-left-width:5px}
+.alert.isread{opacity:.62}
+.alert.isread .t{font-weight:600}
+.alert .d{font-size:12px;color:#3d5872;margin-top:3px}
+.alert .m{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.linkish{color:var(--cyan);cursor:pointer;font-weight:700}
+.linkish:hover{text-decoration:underline}
+.events{display:flex;flex-direction:column;gap:7px;max-height:620px;overflow:auto}
+.event{background:#f8fbff;border:1px solid #e3edf7;border-radius:10px;padding:8px 12px;font-size:12.5px}
+.event .m{font-size:11px;color:var(--muted);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tbl{width:100%;border-collapse:collapse;background:#fff}
+.tbl th{background:linear-gradient(120deg,#0e5b9f,#0899d6);color:#fff;font-size:12px;text-align:left;padding:8px 10px;white-space:nowrap;position:sticky;top:0}
+.tbl td{padding:8px 10px;border-bottom:1px solid #edf3fa;font-size:12.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl tbody tr:nth-child(even){background:#f8fbff}
+.tbl tbody tr:hover{background:#fff7e6}
+.tbl tbody tr.clickable{cursor:pointer}
+.tbl .r{text-align:right}
+.tw{overflow:auto;border-radius:10px;border:1px solid #e3edf7;max-height:540px}
+.st2{color:var(--green);font-weight:700}.st1{color:#d97706;font-weight:700}.st3{color:var(--red);font-weight:700}
+.bad{color:var(--red);font-weight:800}
+select{border:1px solid #c3d8ec;background:#fff;border-radius:8px;padding:6px 9px;font-size:12.5px;color:var(--ink)}
+.trend{width:100%;background:#f8fbff;border:1px solid #e3edf7;border-radius:10px}
+.kv{width:100%;border-collapse:collapse;font-size:12.5px}
+.kv td{border-bottom:1px solid #eef4fa;padding:7px 6px;vertical-align:top}
+.kv td:first-child{color:var(--muted);width:40%}
+.kv tr:last-child td{border-bottom:none}
+.sources{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.source{background:#f8fbff;border:1px solid #e3edf7;border-radius:10px;padding:10px 12px;font-size:12px}
+.source b{color:var(--green)}
+.mini{font-size:11px;color:var(--muted)}
+.pill{display:inline-block;border-radius:20px;padding:3px 11px;font-size:11.5px;font-weight:700;color:#fff;background:linear-gradient(120deg,var(--green),var(--teal))}
+.pill.violet{background:linear-gradient(120deg,#7c5cff,#a78bfa)}
+.pill.gray{background:#a9bccd}
+.ai-status{background:linear-gradient(120deg,#f1edff,#e7f4ff);border:1px solid #d8ccff;border-radius:10px;padding:9px 13px;color:#4338ca;font-weight:600;font-size:12px}
+.ai-tabs{display:flex;gap:5px;margin-bottom:13px;border-bottom:1px solid var(--line)}
+.ai-tab{border:1px solid transparent;background:none;padding:9px 16px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-radius:9px 9px 0 0}
+.ai-tab.on{color:var(--brand);background:#fff;border-color:var(--line);border-bottom-color:#fff;margin-bottom:-1px}
+.ai-panel{display:none}
+.ai-panel.on{display:block}
+details.fold>summary{cursor:pointer;list-style:none;user-select:none;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:'▸';color:var(--cyan);font-size:11px;transition:transform .16s}
+details.fold[open]>summary::before{transform:rotate(90deg)}
+details.fold>div{margin-top:9px}
+.ai-item{border-top:1px dashed #d8ccff;padding:7px 0}
+.ai-item>summary{cursor:pointer;font-size:12px;color:var(--muted);list-style:none}
+.ai-item>summary::-webkit-details-marker{display:none}
+.md h3{font-size:13.5px;margin:9px 0 4px;color:#0e5b9f}
+.md p{margin:2px 0}
+.md li{display:list-item;list-style:disc inside;margin:2px 0}
+.md li.n{list-style:decimal inside}
+.md .gap{display:block;height:5px}
+.md strong{font-weight:800;color:#0a3a6b}
+.modal-mask{position:fixed;inset:0;background:rgba(10,40,70,.45);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:5vh 20px}
+.modal{background:#fff;max-width:880px;width:100%;max-height:84vh;overflow:auto;border-radius:15px;padding:18px 28px 26px;box-shadow:0 20px 60px rgba(10,40,70,.4);border-top:5px solid var(--teal)}
+.modal .bar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #dde5ec;padding:14px 0 10px;margin-bottom:5px;position:sticky;top:-18px;background:#fff}
+.modal .bar strong{color:var(--brand);font-size:15px}
+.modal .bar button{border:1px solid #b9c8d6;background:#eef3f8;border-radius:7px;padding:5px 13px;cursor:pointer;color:#1c2733}
+.toast{position:fixed;right:22px;bottom:22px;z-index:60;background:linear-gradient(120deg,#0a3a6b,#0e5b9f);color:#fff;border-radius:10px;padding:11px 17px;box-shadow:0 12px 30px rgba(10,58,107,.4);display:none;max-width:500px;font-size:12.5px}
+.pagefoot{padding:14px 20px 18px;color:#8ba1b6;font-size:11px;border-top:1px solid var(--line);margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
+.empty{color:var(--muted);font-size:12.5px;padding:13px;text-align:center}
+.devhead{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #dce8f4;border-radius:14px;padding:16px 18px;box-shadow:0 4px 14px rgba(14,91,159,.06);margin-bottom:13px}
+.devhead .bigav{width:52px;height:52px;border-radius:13px;display:grid;place-items:center;font-size:19px;font-weight:800;color:#fff;background:linear-gradient(140deg,#0e5b9f,#0fb5a3)}
+.devhead h1{margin:0;font-size:19px}
+.devhead .sub{color:var(--muted);font-size:12px;margin-top:2px}
+@media(max-width:1180px){.kpis{grid-template-columns:repeat(3,1fr)}.grid2,.grid3{grid-template-columns:1fr}.search{display:none}}
+@media(max-width:900px){:root{--side-w:60px}.side .brand b,.side .brand small,.nav .grp,.nav a .tx,.sidefoot,.userbox .who,.userbox .caret{display:none}.nav a{justify-content:center;padding-left:0}.userbox{justify-content:center}.content{padding:12px}.crumb{max-width:none}}
+
+.demo-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#f59e0b,#ef7c22);color:#fff;font:600 12.5px/1.6 system-ui,"PingFang SC",sans-serif;text-align:center;padding:6px 12px;letter-spacing:.3px;box-shadow:0 2px 10px rgba(239,124,34,.35)}
+.demo-banner b{background:rgba(255,255,255,.22);padding:1px 8px;border-radius:8px;margin-right:6px}
+body{padding-top:30px}
+</style></head>
+<body><div class="demo-banner"><b>在线演示</b>只读快照 · 数据采集于 2026-10-16T09:12:27+08:00 · 完整功能请使用厂内系统 http://192.168.0.220:8765/</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><img src="./assets/hangshen-electric-logo.png" alt="杭申电气"><div><b>生产线智能监控</b><small>HANGSHEN · MES VIEW</small></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="userbox" id="userbox">
+      <div class="av" id="uav">管</div>
+      <div class="who"><b id="uname">加载中…</b><small id="urole">—</small></div>
+      <span class="caret">▴</span>
+    </div>
+    <div class="usermenu" id="usermenu">
+      <div class="uh">当前登录<br><b id="umenuName">—</b><span id="umenuDept"></span></div>
+      <button id="mProfile">个人信息与设置</button>
+      <button id="mAbout">关于本系统</button>
+      <button id="mLogout">退出登录</button>
+    </div>
+    <div class="sidefoot">
+      <div><span class="dot" id="fDot"></span><span id="fEngine">采集引擎运行中</span></div>
+      <div><span class="dot" id="fAiDot"></span><span id="fAi">AI 引擎在线</span></div>
+      <div style="margin-top:3px;opacity:.75" id="fVer">V1.1.0</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="crumb" id="crumb">杭申电气 · 智能制造<b id="pageTitle">运营总览</b></div>
+      <div class="search"><span class="sic">🔍</span><input id="search" placeholder="搜索设备 / 预警 / 事件…" autocomplete="off"><div class="sres" id="sres"></div></div>
+      <div class="chips">
+        <span class="chip" id="health"><span class="dot"></span>连接中…</span>
+        <span class="chip" id="clock">--:--:--</span>
+        <button class="icon-btn" id="refreshBtn" title="立即刷新">⟳</button>
+        <button class="icon-btn" id="bellBtn" title="预警中心">🔔<span class="bdot" id="bellDot">0</span></button>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="view on" id="v-overview">
+        <div class="pagehead"><div><h1>运营总览</h1><p class="desc" id="ovDesc">实时采集生产接口，自动识别异常并生成滚动总结</p></div>
+          <div class="acts"><button class="btn" id="export">导出报告</button><button class="btn primary" id="aiRunTop">AI 智能分析</button></div></div>
+        <div class="kpis" id="kpis"></div>
+        <div class="grid2">
+          <div class="card"><h2>当前提醒 <span class="badge" id="alertCount">0 条</span> <small style="margin-left:auto"><span class="linkish" onclick="location.hash='#/alerts'">查看全部 →</span></small></h2><div class="alerts" id="alerts"></div></div>
+          <div class="card"><h2>运行概况</h2><div id="overviewInfo"></div></div>
+        </div>
+        <div class="card mt"><h2>设备总览 <small>接口累计口径，点击行查看单台设备</small></h2><div class="tw"><table class="tbl"><thead><tr><th>设备 / ID</th><th>状态</th><th class="r">累计投入量</th><th class="r">本次增量</th><th class="r">合格率</th><th class="r">OEE</th><th class="r">开启时长 h</th><th class="r">故障次数</th><th class="r">故障时长 h</th><th class="r">观测停机 s</th></tr></thead><tbody id="units"></tbody></table></div></div>
+        <div class="card mt"><h2>近期趋势 <small>最近 180 次采集</small></h2>
+          <div style="display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap"><select id="device"></select><select id="metric"><option value="yield_percent">接口合格率 %</option><option value="oee_percent">接口 OEE %</option><option value="input_total">累计投入量</option><option value="total_seconds">开启时长 s</option></select></div>
+          <svg class="trend" id="chart" viewBox="0 0 620 180" role="img" aria-label="趋势图"></svg><small id="trendNote">正在积累历史数据</small></div>
+      </section>
+
+      <section class="view" id="v-devices">
+        <div class="pagehead"><div><h1>设备监控</h1><p class="desc">设备单元实时状态，可按状态筛选；点击行进入设备详情</p></div>
+          <div class="acts"><select id="statusFilter"><option value="">全部状态</option><option value="2">自动运行</option><option value="1">待机</option><option value="3">停机待核查</option></select></div></div>
+        <div class="kpis" id="kpis2"></div>
+        <div class="card"><h2>设备明细 <small id="devCount"></small></h2><div class="tw"><table class="tbl"><thead><tr><th>设备 / ID</th><th>编号</th><th>状态</th><th class="r">累计投入量</th><th class="r">合格率</th><th class="r">OEE</th><th class="r">开启时长 h</th><th class="r">故障次数</th><th class="r">故障时长 h</th><th class="r">观测停机 s</th><th>采集时间</th></tr></thead><tbody id="units2"></tbody></table></div>
+        <p class="mini" style="margin-top:8px">投入量为接口累计值，跨工序可能重复计数；时长为原看板 ÷3600 口径；采集时间取本系统读取时刻。</p></div>
+      </section>
+
+      <section class="view" id="v-unit">
+        <div id="unitHead"></div>
+        <div class="grid3" id="unitKpis"></div>
+        <div class="grid2 mt">
+          <div class="card"><h2>指标趋势 <small id="unitTrendHint"></small></h2>
+            <div style="display:flex;gap:7px;margin-bottom:9px"><select id="unitMetric"><option value="yield_percent">合格率 %</option><option value="oee_percent">OEE %</option><option value="input_total">累计投入量</option><option value="break_seconds">故障时长 s</option></select></div>
+            <svg class="trend" id="unitChart" viewBox="0 0 620 180" role="img" aria-label="设备趋势"></svg></div>
+          <div class="card"><h2>该设备相关提醒 <span class="badge" id="unitAlertCount">0 条</span></h2><div class="alerts" id="unitAlerts"></div>
+            <div style="margin-top:10px"><button class="btn primary sm" id="unitAi">针对该设备生成 AI 分析</button></div></div>
+        </div>
+        <div class="card mt"><h2>该设备事件记录 <span class="badge" id="unitEventCount">0 条</span></h2><div class="events" id="unitEvents"></div></div>
+        <div class="card mt"><h2>接口原始字段</h2><div id="unitRaw"></div></div>
+      </section>
+
+      <section class="view" id="v-alerts">
+        <div class="pagehead"><div><h1>预警中心</h1><p class="desc">按规则实时判定，连续命中后进入提醒；条件消失自动解除</p></div>
+          <div class="acts"><select id="sevFilter"><option value="">全部级别</option><option value="critical">严重</option><option value="warning">业务提醒</option></select>
+          <select id="srcFilter"><option value="">全部来源</option><option value="users">/users</option><option value="totaltime">/totaltime</option><option value="break">/break</option></select>
+          <button class="btn" id="alertReadAll">全部标为已读</button></div></div>
+        <div class="card"><h2>活跃提醒 <span class="badge" id="alertCount2">0 条</span> <span class="badge gray" id="unreadBadge">未读 0</span></h2><div class="alerts" id="alerts2" style="max-height:none"></div>
+        <p class="mini" style="margin-top:9px">“待确认”表示阈值尚未经业务部门确认，仅作复核线索，不构成正式 KPI 判定。点击“设备”可直达该设备详情。</p></div>
+      </section>
+
+      <section class="view" id="v-ai">
+        <div class="pagehead"><div><h1>AI 智能分析</h1><p class="desc">DeepSeek 驱动：智能总结、生产日报、异常排查与数据问答</p></div>
+          <div class="acts"><button class="btn" id="aiRun">生成全局总结</button><button class="btn primary" id="aiReportRun">生成今日日报</button></div></div>
+        <div class="ai-tabs">
+          <button class="ai-tab on" data-tab="sum">智能总结</button>
+          <button class="ai-tab" data-tab="report">生产日报</button>
+          <button class="ai-tab" data-tab="ask">数据问答</button>
+        </div>
+
+        <div class="ai-panel on" id="aiP-sum">
+          <div class="grid2">
+            <div class="card"><h2>分析引擎</h2><div class="ai-status" id="aiStatus">正在读取 AI 配置…</div>
+              <p class="mini" style="margin-top:9px">默认只发送结构化指标、提醒与十分钟总结，不发送生产接口原始响应；API Key 仅存于服务器环境变量。连续失败自动熔断并降级为本地规则。</p>
+              <div style="margin-top:9px"><span class="pill violet" id="aiModelPill">deepseek</span></div></div>
+            <div class="card"><h2>最近一次生成 <small id="aiLatestMeta"></small></h2><div class="md" id="aiLatest"><p class="muted">点击右上角“生成全局总结”开始。</p></div></div>
+          </div>
+          <div class="card mt"><details class="fold"><summary>历史分析记录 <span class="badge" id="aiCount">0 条</span></summary><div id="aiHistory"></div></details></div>
+        </div>
+
+        <div class="ai-panel" id="aiP-report">
+          <div class="grid2">
+            <div class="card"><h2>日报构成 <small>全部来自本地真实数据</small></h2><div id="reportInfo"></div>
+              <p class="mini" style="margin-top:9px">日报由当日首末快照对比（投入增量）、状态采样占比、当日事件与十分钟总结聚合而成，AI 负责归纳与建议；不含原始接口响应。</p></div>
+            <div class="card"><h2>最近一份日报 <small id="reportMeta"></small></h2><div class="md" id="reportBody"><p class="muted">点击右上角“生成今日日报”开始，约 20-40 秒。</p></div></div>
+          </div>
+          <div class="card mt"><details class="fold"><summary>历史日报 <span class="badge" id="reportCount">0 份</span></summary><div id="reportHistory"></div></details></div>
+        </div>
+
+        <div class="ai-panel" id="aiP-ask">
+          <div class="card"><h2>数据问答 <small>仅基于系统实时数据回答，不编造</small></h2>
+            <div id="askLog" class="events" style="max-height:440px"></div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <input id="askInput" placeholder="例如：哪台设备当前最需要关注？今天各设备投入增量情况？" style="flex:1;border:1px solid #c3d8ec;border-radius:9px;padding:9px 12px;font-size:13px">
+              <button class="btn primary" id="askSend">提问</button>
+            </div>
+            <div class="mini" style="margin-top:7px">试试：<span class="linkish" onclick="askExample(this)">哪台设备当前最需要关注？</span> · <span class="linkish" onclick="askExample(this)">今天各设备投入增量情况？</span> · <span class="linkish" onclick="askExample(this)">当前提醒里哪条最紧急？</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="v-events">
+        <div class="pagehead"><div><h1>预警事件记录</h1><p class="desc">仅记录新出现与解除，重复命中不刷屏；解除表示条件消失，不代表已完成维修</p></div>
+          <div class="acts"><select id="eventFilter"><option value="">全部类型</option><option value="opened">出现</option><option value="cleared">解除</option></select></div></div>
+        <div class="card"><details class="fold" open><summary>事件流水 <span class="badge" id="eventsCount">0 条</span></summary><div class="events" id="events"></div></details></div>
+      </section>
+
+      <section class="view" id="v-summaries">
+        <div class="pagehead"><div><h1>十分钟滚动总结</h1><p class="desc">固定窗口确定性聚合，不补零、不推断根因；未完成窗口不提前写入</p></div></div>
+        <div class="card"><details class="fold" open><summary>总结历史 <span class="badge" id="summariesCount">0 条</span></summary><div class="events" id="summaries"></div></details></div>
+      </section>
+
+      <section class="view" id="v-reports">
+        <div class="pagehead"><div><h1>报表中心</h1><p class="desc">按需生成当前时段监控报告，支持在线预览、打印存档与文件下载</p></div>
+          <div class="acts"><button class="btn primary" id="repGen">生成并预览报告</button></div></div>
+        <div class="grid2">
+          <div class="card"><h2>报告内容构成</h2><div id="repInfo"></div></div>
+          <div class="card"><h2>最近导出记录</h2><div class="events" id="repLogs"></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="v-link">
+        <div class="pagehead"><div><h1>数据链路</h1><p class="desc">生产接口连通性、采集口径与判断边界</p></div>
+          <div class="acts"><button class="btn" id="linkRefresh">立即探测</button></div></div>
+        <div class="card"><h2>接口状态</h2><div class="sources" id="sources"></div></div>
+        <div class="grid2 mt">
+          <div class="card"><h2>采集与口径</h2><div id="linkInfo"></div></div>
+          <div class="card"><h2>规则阈值 <small>试运行，待业务确认</small></h2><div id="rulesInfo"></div></div>
+        </div>
+        <div class="card mt"><h2>数据完备性说明</h2><p class="mini" style="line-height:1.9">当前接口未提供源采样时间、PLC/网关心跳、工单目标、型号节拍、检验分母与故障码。因此本系统不判断交期风险、不计算精确不良数、不做根因诊断；持续未变化仅提示核查。后续数据补齐后可扩展上述能力。</p></div>
+      </section>
+
+      <section class="view" id="v-health">
+        <div class="pagehead"><div><h1>运行监控</h1><p class="desc">服务进程、数据存储与守护机制的实时状态</p></div>
+          <div class="acts"><button class="btn" id="sysRefresh">刷新</button></div></div>
+        <div class="kpis" id="sysKpis" style="grid-template-columns:repeat(4,1fr)"></div>
+        <div class="grid2">
+          <div class="card"><h2>服务信息</h2><div id="sysInfo"></div></div>
+          <div class="card"><h2>数据存储</h2><div id="sysDb"></div></div>
+        </div>
+        <div class="card mt"><h2>守护与采集</h2><div id="sysGuard"></div></div>
+      </section>
+
+      <section class="view" id="v-settings">
+        <div class="pagehead"><div><h1>系统设置</h1><p class="desc">运行参数、账号与 AI 服务配置（只读展示，修改见部署说明）</p></div></div>
+        <div class="grid2">
+          <div class="card"><h2>采集参数</h2><div id="setCollect"></div></div>
+          <div class="card"><h2>规则阈值</h2><div id="setRules"></div></div>
+        </div>
+        <div class="grid2 mt">
+          <div class="card"><h2>AI 服务</h2><div id="setAi"></div></div>
+          <div class="card"><h2>账号与权限</h2><div id="setUser"></div></div>
+        </div>
+        <div class="card mt"><h2>系统信息</h2><div id="setSys"></div></div>
+      </section>
+
+      <section class="view" id="v-logs">
+        <div class="pagehead"><div><h1>操作日志</h1><p class="desc">登录、导出、AI 分析等操作留痕，便于审计追溯（仅管理员可见）</p></div>
+          <div class="acts"><select id="logFilter"><option value="">全部操作</option><option value="登录系统">登录</option><option value="导出报告">导出报告</option><option value="AI 分析">AI 分析</option><option value="退出登录">退出登录</option></select>
+          <button class="btn" id="logRefresh">刷新</button></div></div>
+        <div class="card"><div class="tw"><table class="tbl"><thead><tr><th>时间</th><th>操作人</th><th>操作类型</th><th>详情</th></tr></thead><tbody id="logBody"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="v-about">
+        <div class="pagehead"><div><h1>关于与帮助</h1><p class="desc">系统信息、模块导航与使用要点</p></div></div>
+        <div class="grid2">
+          <div class="card"><h2>系统信息</h2><div id="aboutSys"></div></div>
+          <div class="card"><h2>使用要点</h2><div id="aboutTips"></div></div>
+        </div>
+        <div class="card mt"><h2>常见问题</h2><div id="aboutFaq"></div></div>
+      </section>
+    </div>
+
+    <footer class="pagefoot"><span id="footCopy">© 2026 杭州之江开关股份有限公司</span><span>内部系统 · 仅限授权人员使用</span><span>数据仅存于本机</span></footer>
+  </div>
+</div>
+
+<div class="modal-mask" id="modal"><div class="modal"><div class="bar"><strong id="modalTitle">AI 分析结果</strong><button id="modalClose">关闭</button></div><div class="md" id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+
+/* ===== 静态演示模式：拦截 /api/* 返回历史快照 ===== */
+const DEMO_MOCKS = {"/api/status": {"units": [{"id": "1", "unit_no": "1", "name": "单极铆接", "status": "1", "status_label": "待机", "input_total": 401.0, "yield_percent": 99.8, "oee_percent": 32.3, "total_seconds": 3100.374, "break_seconds": 0.0, "break_count": 0.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 0, "raw": {"unit_id": 1, "UnitNo": "1", "UnitName": "单极铆接", "ProductNumber_Total": "401", "ProductPer_Pass": "99.8", "OEERate": "32.3", "RunningStatus": "1", "TotalTime": "3100.374", "BreakdownTimes": "0", "BreakdownTime": "0"}}, {"id": "2", "unit_no": "2", "name": "延时单元", "status": "1", "status_label": "待机", "input_total": 402.0, "yield_percent": 95.3, "oee_percent": 31.1, "total_seconds": 3077.752, "break_seconds": 0.0, "break_count": 0.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 0, "raw": {"unit_id": 2, "UnitNo": "2", "UnitName": "延时单元", "ProductNumber_Total": "402", "ProductPer_Pass": "95.3", "OEERate": "31.1", "RunningStatus": "1", "TotalTime": "3077.752", "BreakdownTimes": "0", "BreakdownTime": "0"}}, {"id": "3", "unit_no": "3", "name": "冷却塔", "status": "3", "status_label": "停机", "input_total": 4624.0, "yield_percent": 100.0, "oee_percent": 0.0, "total_seconds": 170919.7, "break_seconds": 170919.7, "break_count": 7.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 260, "raw": {"unit_id": 3, "UnitNo": "3", "UnitName": "冷却塔", "ProductNumber_Total": "4624", "ProductPer_Pass": "100.0", "OEERate": "0.0", "RunningStatus": "3", "TotalTime": "170919.7", "BreakdownTimes": "7", "BreakdownTime": "170919.7"}}, {"id": "4", "unit_no": "4", "name": "复校单元", "status": "2", "status_label": "自动", "input_total": 27162.0, "yield_percent": 87.7, "oee_percent": 20.1, "total_seconds": 295778.7, "break_seconds": 8629.277, "break_count": 3.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 0, "raw": {"unit_id": 4, "UnitNo": "4", "UnitName": "复校单元", "ProductNumber_Total": "27162", "ProductPer_Pass": "87.7", "OEERate": "20.1", "RunningStatus": "2", "TotalTime": "295778.7", "BreakdownTimes": "3", "BreakdownTime": "8629.277"}}, {"id": "5", "unit_no": "5", "name": "多级铆接单元", "status": "2", "status_label": "自动", "input_total": 17153.0, "yield_percent": 99.9, "oee_percent": 14.5, "total_seconds": 295317.1, "break_seconds": 219422.8, "break_count": 242.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 0, "raw": {"unit_id": 5, "UnitNo": "5", "UnitName": "多级铆接单元", "ProductNumber_Total": "17153", "ProductPer_Pass": "99.9", "OEERate": "14.5", "RunningStatus": "2", "TotalTime": "295317.1", "BreakdownTimes": "242", "BreakdownTime": "219422.8"}}, {"id": "6", "unit_no": "6", "name": "耐压瞬时单元", "status": "1", "status_label": "待机", "input_total": 17479.0, "yield_percent": 96.4, "oee_percent": 16.3, "total_seconds": 258452.7, "break_seconds": 0.0, "break_count": 0.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 0, "raw": {"unit_id": 6, "UnitNo": "6", "UnitName": "耐压瞬时单元", "ProductNumber_Total": "17479", "ProductPer_Pass": "96.4", "OEERate": "16.3", "RunningStatus": "1", "TotalTime": "258452.7", "BreakdownTimes": "0", "BreakdownTime": "0"}}, {"id": "7", "unit_no": "7", "name": "移印单元", "status": "1", "status_label": "待机", "input_total": 107128.0, "yield_percent": 100.0, "oee_percent": 21.7, "total_seconds": 1234985.0, "break_seconds": 96101.63, "break_count": 34.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 0, "raw": {"unit_id": 7, "UnitNo": "7", "UnitName": "移印单元", "ProductNumber_Total": "107128", "ProductPer_Pass": "100.0", "OEERate": "21.7", "RunningStatus": "1", "TotalTime": "1234985", "BreakdownTimes": "34", "BreakdownTime": "96101.63"}}, {"id": "8", "unit_no": "9", "name": "卡扣单元", "status": "1", "status_label": "待机", "input_total": 48132.0, "yield_percent": 99.7, "oee_percent": 27.9, "total_seconds": 429766.1, "break_seconds": 6108.012, "break_count": 6.0, "input_delta": 0.0, "delta_seconds": 10.0, "observed_stop_seconds": 0, "raw": {"unit_id": 8, "UnitNo": "9", "UnitName": "卡扣单元", "ProductNumber_Total": "48132", "ProductPer_Pass": "99.7", "OEERate": "27.9", "RunningStatus": "1", "TotalTime": "429766.1", "BreakdownTimes": "6", "BreakdownTime": "6108.012"}}], "alerts": [{"key": "oee:4", "title": "复校单元OEE 低于试运行阈值", "detail": "自动状态下 OEE 20.1%，阈值 40%。计算公式、计划生产时间和型号基准未提供，需复核口径。", "source": "users", "unit_id": "4", "severity": "warning", "immediate": false, "rule_status": "待确认", "first_seen": "2026-10-16T09:08:17+08:00", "last_seen": "2026-10-16T09:12:27+08:00", "state": "active", "read": false, "read_at": null}, {"key": "oee:5", "title": "多级铆接单元OEE 低于试运行阈值", "detail": "自动状态下 OEE 14.5%，阈值 40%。计算公式、计划生产时间和型号基准未提供，需复核口径。", "source": "users", "unit_id": "5", "severity": "warning", "immediate": false, "rule_status": "待确认", "first_seen": "2026-10-16T09:08:17+08:00", "last_seen": "2026-10-16T09:12:27+08:00", "state": "active", "read": false, "read_at": null}, {"key": "quality:2", "title": "延时单元合格率低于试运行阈值", "detail": "接口合格率 95.3%，阈值 98%。统计窗口和分母未提供；请复核检验样本、型号和工艺记录。", "source": "users", "unit_id": "2", "severity": "warning", "immediate": false, "rule_status": "待确认", "first_seen": "2026-10-16T09:08:17+08:00", "last_seen": "2026-10-16T09:12:27+08:00", "state": "active", "read": false, "read_at": null}, {"key": "quality:4", "title": "复校单元合格率低于试运行阈值", "detail": "接口合格率 87.7%，阈值 98%。统计窗口和分母未提供；请复核检验样本、型号和工艺记录。", "source": "users", "unit_id": "4", "severity": "warning", "immediate": false, "rule_status": "待确认", "first_seen": "2026-10-16T09:08:17+08:00", "last_seen": "2026-10-16T09:12:27+08:00", "state": "active", "read": false, "read_at": null}, {"key": "quality:6", "title": "耐压瞬时单元合格率低于试运行阈值", "detail": "接口合格率 96.4%，阈值 98%。统计窗口和分母未提供；请复核检验样本、型号和工艺记录。", "source": "users", "unit_id": "6", "severity": "warning", "immediate": false, "rule_status": "待确认", "first_seen": "2026-10-16T09:08:17+08:00", "last_seen": "2026-10-16T09:12:27+08:00", "state": "active", "read": false, "read_at": null}, {"key": "stop:3", "title": "冷却塔持续停机待核查", "detail": "自本工具连续观测起已停机 260 秒；缺少排班与停机原因，请核实计划停机、换型、缺料或设备故障。", "source": "users", "unit_id": "3", "severity": "warning", "immediate": false, "rule_status": "待确认", "first_seen": "2026-10-16T09:10:17+08:00", "last_seen": "2026-10-16T09:12:27+08:00", "state": "active", "read": false, "read_at": null}], "events": [], "unchanged_seconds": 0, "complete": true, "observed_at": "2026-10-16T09:12:27+08:00", "epoch": 1792113147.954881, "sources": {"users": {"url": "http://61.164.32.34:1013/users", "fetched_at": "2026-10-16T09:12:27+08:00", "ok": true, "data": {"data": [{"unit_id": 1, "UnitNo": "1", "UnitName": "单极铆接", "ProductNumber_Total": "401", "ProductPer_Pass": "99.8", "OEERate": "32.3", "RunningStatus": "1", "TotalTime": "3100.374", "BreakdownTimes": "0", "BreakdownTime": "0"}, {"unit_id": 2, "UnitNo": "2", "UnitName": "延时单元", "ProductNumber_Total": "402", "ProductPer_Pass": "95.3", "OEERate": "31.1", "RunningStatus": "1", "TotalTime": "3077.752", "BreakdownTimes": "0", "BreakdownTime": "0"}, {"unit_id": 3, "UnitNo": "3", "UnitName": "冷却塔", "ProductNumber_Total": "4624", "ProductPer_Pass": "100.0", "OEERate": "0.0", "RunningStatus": "3", "TotalTime": "170919.7", "BreakdownTimes": "7", "BreakdownTime": "170919.7"}, {"unit_id": 4, "UnitNo": "4", "UnitName": "复校单元", "ProductNumber_Total": "27162", "ProductPer_Pass": "87.7", "OEERate": "20.1", "RunningStatus": "2", "TotalTime": "295778.7", "BreakdownTimes": "3", "BreakdownTime": "8629.277"}, {"unit_id": 5, "UnitNo": "5", "UnitName": "多级铆接单元", "ProductNumber_Total": "17153", "ProductPer_Pass": "99.9", "OEERate": "14.5", "RunningStatus": "2", "TotalTime": "295317.1", "BreakdownTimes": "242", "BreakdownTime": "219422.8"}, {"unit_id": 6, "UnitNo": "6", "UnitName": "耐压瞬时单元", "ProductNumber_Total": "17479", "ProductPer_Pass": "96.4", "OEERate": "16.3", "RunningStatus": "1", "TotalTime": "258452.7", "BreakdownTimes": "0", "BreakdownTime": "0"}, {"unit_id": 7, "UnitNo": "7", "UnitName": "移印单元", "ProductNumber_Total": "107128", "ProductPer_Pass": "100.0", "OEERate": "21.7", "RunningStatus": "1", "TotalTime": "1234985", "BreakdownTimes": "34", "BreakdownTime": "96101.63"}, {"unit_id": 8, "UnitNo": "9", "UnitName": "卡扣单元", "ProductNumber_Total": "48132", "ProductPer_Pass": "99.7", "OEERate": "27.9", "RunningStatus": "1", "TotalTime": "429766.1", "BreakdownTimes": "6", "BreakdownTime": "6108.012"}]}, "error": null, "duration_ms": 17}, "totaltime": {"url": "http://61.164.32.34:1013/totaltime", "fetched_at": "2026-10-16T09:12:27+08:00", "ok": true, "data": {"data": [{"unitid": 1, "UnitName": "单极铆接", "TotalTime": "3100.374"}, {"unitid": 2, "UnitName": "延时单元", "TotalTime": "3077.752"}, {"unitid": 3, "UnitName": "冷却塔", "TotalTime": "170919.7"}, {"unitid": 4, "UnitName": "复校单元", "TotalTime": "295778.7"}, {"unitid": 5, "UnitName": "多级铆接单元", "TotalTime": "295317.1"}, {"unitid": 6, "UnitName": "耐压瞬时单元", "TotalTime": "258452.7"}, {"unitid": 7, "UnitName": "移印单元", "TotalTime": "1234985"}, {"unitid": 8, "UnitName": "卡扣单元", "TotalTime": "429766.1"}]}, "error": null, "duration_ms": 27}, "break": {"url": "http://61.164.32.34:1013/break", "fetched_at": "2026-10-16T09:12:27+08:00", "ok": true, "data": {"data": [{"unitid": 1, "UnitName": "单极铆接", "BreakdownTime": "0", "BreakdownTimes": "0"}, {"unitid": 2, "UnitName": "延时单元", "BreakdownTime": "0", "BreakdownTimes": "0"}, {"unitid": 3, "UnitName": "冷却塔", "BreakdownTime": "170919.7", "BreakdownTimes": "7"}, {"unitid": 4, "UnitName": "复校单元", "BreakdownTime": "8629.277", "BreakdownTimes": "3"}, {"unitid": 5, "UnitName": "多级铆接单元", "BreakdownTime": "219422.8", "BreakdownTimes": "242"}, {"unitid": 6, "UnitName": "耐压瞬时单元", "BreakdownTime": "0", "BreakdownTimes": "0"}, {"unitid": 7, "UnitName": "移印单元", "BreakdownTime": "96101.63", "BreakdownTimes": "34"}, {"unitid": 8, "UnitName": "卡扣单元", "BreakdownTime": "6108.012", "BreakdownTimes": "6"}]}, "error": null, "duration_ms": 39}}, "summary": ["本次读取 8 个设备单元：自动 2、待机 5、停机 1。", "接口合格率最低为复校单元 87.7%；统计周期与分母待确认。", "当前有 6 条提醒；规则尚未连续命中时，指标仍可先供人工核查。", "全部业务字段已连续 0 秒未变化；采集成功不代表源数据实时更新。", "各工序投入量可能重复计数，不能相加为全线产量；缺少生产计划，暂不能判断订单延期或产量达成率。"], "config": {"title": "杭申电气生产线观察站", "company": "杭申电气", "source_base": "http://61.164.32.34:1013", "dashboard_url": "http://192.168.5.68:8080/", "poll_seconds": 10, "summary_interval_seconds": 600, "summary_retention_days": 180, "timeout_seconds": 6, "port": 8765, "bind_host": "0.0.0.0", "retention_days": 30, "event_history_limit": 50, "summary_history_limit": 10, "rules": {"confirmed": false, "yield_min_percent": 98, "oee_min_percent": 40, "stop_observed_seconds": 120, "no_input_seconds": 300, "unchanged_seconds": 300, "consecutive_samples": 2}, "ai": {"enabled": true, "auto_summary": false, "provider": "deepseek", "model": "deepseek-v4-flash", "endpoint": "https://api.deepseek.com/chat/completions", "api_key_env": "DEEPSEEK_API_KEY", "extra_instructions": "", "timeout_seconds": 30, "max_retries": 2, "backoff_seconds": 1, "failure_threshold": 3, "cooldown_seconds": 300, "fallback_local": true, "max_request_bytes": 120000, "max_response_bytes": 2000000, "allowed_hosts": ["api.openai.com", "api.deepseek.com"], "send_raw_sources": false}}, "engine": "本地规则分析 + 中文事实摘要（未接入大模型）", "source_timestamp": null, "source_version": "待确认", "company": "杭申电气", "unread_alerts": 6}, "/api/events": [{"key": "offline:break", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "break", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:32:20+08:00", "last_seen": "2026-10-26T15:32:20+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:32:20+08:00"}, {"key": "offline:totaltime", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "totaltime", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:32:20+08:00", "last_seen": "2026-10-26T15:32:20+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:32:20+08:00"}, {"key": "offline:users", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "users", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:32:20+08:00", "last_seen": "2026-10-26T15:32:20+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:32:20+08:00"}, {"key": "offline:break", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "break", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:32:04+08:00", "last_seen": "2026-10-26T15:32:04+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:32:04+08:00"}, {"key": "offline:totaltime", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "totaltime", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:32:04+08:00", "last_seen": "2026-10-26T15:32:04+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:32:04+08:00"}, {"key": "offline:users", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "users", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:32:04+08:00", "last_seen": "2026-10-26T15:32:04+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:32:04+08:00"}, {"key": "offline:break", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "break", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:18:20+08:00", "last_seen": "2026-10-26T15:18:20+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:18:20+08:00"}, {"key": "offline:totaltime", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "totaltime", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:18:20+08:00", "last_seen": "2026-10-26T15:18:20+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:18:20+08:00"}, {"key": "offline:users", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "users", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:18:20+08:00", "last_seen": "2026-10-26T15:18:20+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:18:20+08:00"}, {"key": "offline:break", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "break", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:17:18+08:00", "last_seen": "2026-10-26T15:17:18+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:17:18+08:00"}, {"key": "offline:totaltime", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "totaltime", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:17:18+08:00", "last_seen": "2026-10-26T15:17:18+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:17:18+08:00"}, {"key": "offline:users", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "users", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:17:18+08:00", "last_seen": "2026-10-26T15:17:18+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:17:18+08:00"}, {"key": "offline:break", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "break", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:14:45+08:00", "last_seen": "2026-10-26T15:14:45+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:14:45+08:00"}, {"key": "offline:totaltime", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "totaltime", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:14:45+08:00", "last_seen": "2026-10-26T15:14:45+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:14:45+08:00"}, {"key": "offline:users", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "users", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:14:45+08:00", "last_seen": "2026-10-26T15:14:45+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:14:45+08:00"}, {"key": "offline:break", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "break", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:03:38+08:00", "last_seen": "2026-10-26T15:03:38+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:03:38+08:00"}, {"key": "offline:totaltime", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "totaltime", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:03:38+08:00", "last_seen": "2026-10-26T15:03:38+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:03:38+08:00"}, {"key": "offline:users", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "users", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:03:38+08:00", "last_seen": "2026-10-26T15:03:38+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:03:38+08:00"}, {"key": "offline:break", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "break", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:03:11+08:00", "last_seen": "2026-10-26T15:03:11+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:03:11+08:00"}, {"key": "offline:totaltime", "title": "数据接口读取失败", "detail": "HTTP Error 500: Internal Server Error", "source": "totaltime", "unit_id": null, "severity": "critical", "immediate": true, "rule_status": "观测事实", "first_seen": "2026-10-26T15:03:11+08:00", "last_seen": "2026-10-26T15:03:11+08:00", "state": "active", "event": "opened", "at": "2026-10-26T15:03:11+08:00"}], "/api/history": [{"observed_at": "2026-10-16T09:08:07+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 35.2, "input_total": 401.0, "total_seconds": 2839.519, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 34.0, "input_total": 402.0, "total_seconds": 2816.997, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27078.0, "total_seconds": 295534.5, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295072.8, "break_seconds": 219178.6}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258208.5, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234659.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429521.9, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:08:17+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 35.1, "input_total": 401.0, "total_seconds": 2849.629, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.9, "input_total": 402.0, "total_seconds": 2827.007, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27078.0, "total_seconds": 295543.8, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295082.3, "break_seconds": 219188.0}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258218.0, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234672.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429531.3, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:08:27+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 35.0, "input_total": 401.0, "total_seconds": 2859.639, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.8, "input_total": 402.0, "total_seconds": 2837.017, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27078.0, "total_seconds": 295553.2, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295091.7, "break_seconds": 219197.4}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258227.3, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234681.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429540.6, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:08:37+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.8, "input_total": 401.0, "total_seconds": 2869.649, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.6, "input_total": 402.0, "total_seconds": 2847.027, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27090.0, "total_seconds": 295562.6, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295101.0, "break_seconds": 219206.7}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258236.6, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234697.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429550.0, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:08:47+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.7, "input_total": 401.0, "total_seconds": 2879.558, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.5, "input_total": 402.0, "total_seconds": 2857.036, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27090.0, "total_seconds": 295572.0, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295110.3, "break_seconds": 219216.1}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258246.0, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234709.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429559.4, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:08:57+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.6, "input_total": 401.0, "total_seconds": 2889.668, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.4, "input_total": 402.0, "total_seconds": 2867.146, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27090.0, "total_seconds": 295581.3, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295119.8, "break_seconds": 219225.5}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258255.4, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234722.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429568.8, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:09:07+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.5, "input_total": 401.0, "total_seconds": 2898.677, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.3, "input_total": 402.0, "total_seconds": 2876.155, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27090.0, "total_seconds": 295589.8, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295130.5, "break_seconds": 219236.2}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258266.2, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234736.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429577.2, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:09:17+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.4, "input_total": 401.0, "total_seconds": 2908.687, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.2, "input_total": 402.0, "total_seconds": 2886.065, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27102.0, "total_seconds": 295599.2, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295140.0, "break_seconds": 219245.7}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258275.6, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234749.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429586.6, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:09:27+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.3, "input_total": 401.0, "total_seconds": 2918.697, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 33.1, "input_total": 402.0, "total_seconds": 2896.175, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27102.0, "total_seconds": 295608.5, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295149.3, "break_seconds": 219255.0}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258285.0, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234761.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429595.9, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:09:37+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.1, "input_total": 401.0, "total_seconds": 2928.606, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.9, "input_total": 402.0, "total_seconds": 2906.084, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27102.0, "total_seconds": 295617.9, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295158.5, "break_seconds": 219264.3}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258294.3, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234774.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429605.3, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:09:47+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 34.0, "input_total": 401.0, "total_seconds": 2938.716, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.8, "input_total": 402.0, "total_seconds": 2916.094, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27114.0, "total_seconds": 295627.3, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295168.0, "break_seconds": 219273.7}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258303.7, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234786.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429614.7, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:09:57+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.9, "input_total": 401.0, "total_seconds": 2948.225, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.7, "input_total": 402.0, "total_seconds": 2925.603, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27114.0, "total_seconds": 295636.2, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295176.9, "break_seconds": 219282.6}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258312.5, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234798.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429625.9, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:10:07+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.8, "input_total": 401.0, "total_seconds": 2958.235, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.6, "input_total": 402.0, "total_seconds": 2935.613, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27114.0, "total_seconds": 295645.6, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295186.3, "break_seconds": 219292.0}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258321.9, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234811.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429635.3, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:10:17+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.7, "input_total": 401.0, "total_seconds": 2968.345, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.5, "input_total": 402.0, "total_seconds": 2945.823, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27114.0, "total_seconds": 295655.0, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295195.8, "break_seconds": 219301.5}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258331.5, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234823.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429644.7, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:10:27+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.6, "input_total": 401.0, "total_seconds": 2978.255, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.4, "input_total": 402.0, "total_seconds": 2955.633, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27126.0, "total_seconds": 295664.3, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295205.1, "break_seconds": 219310.8}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258340.8, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234836.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429654.1, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:10:37+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.5, "input_total": 401.0, "total_seconds": 2988.264, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.3, "input_total": 402.0, "total_seconds": 2965.642, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27126.0, "total_seconds": 295673.7, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295214.4, "break_seconds": 219320.1}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258350.0, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234848.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429663.4, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:10:48+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.4, "input_total": 401.0, "total_seconds": 2998.274, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.2, "input_total": 402.0, "total_seconds": 2975.652, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27126.0, "total_seconds": 295683.1, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295223.8, "break_seconds": 219329.5}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258359.5, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234861.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429672.8, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:10:57+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.2, "input_total": 401.0, "total_seconds": 3008.284, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.1, "input_total": 402.0, "total_seconds": 2985.662, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27138.0, "total_seconds": 295692.4, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295233.2, "break_seconds": 219338.9}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258368.9, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234873.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429682.2, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:11:07+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.1, "input_total": 401.0, "total_seconds": 3018.394, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 32.0, "input_total": 402.0, "total_seconds": 2995.772, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27138.0, "total_seconds": 295701.9, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295242.6, "break_seconds": 219348.3}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258378.3, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234886.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429691.6, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:11:17+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 33.0, "input_total": 401.0, "total_seconds": 3028.203, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.9, "input_total": 402.0, "total_seconds": 3005.681, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27138.0, "total_seconds": 295711.2, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295251.9, "break_seconds": 219357.6}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258387.5, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234898.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429700.9, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:11:27+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 32.9, "input_total": 401.0, "total_seconds": 3038.313, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.8, "input_total": 402.0, "total_seconds": 3015.791, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27150.0, "total_seconds": 295720.7, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295261.4, "break_seconds": 219367.1}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258397.0, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234911.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429710.3, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:11:37+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 32.8, "input_total": 401.0, "total_seconds": 3048.323, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.6, "input_total": 402.0, "total_seconds": 3025.801, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27150.0, "total_seconds": 295729.9, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295270.7, "break_seconds": 219376.4}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258406.3, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234923.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429719.7, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:11:47+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 32.7, "input_total": 401.0, "total_seconds": 3058.333, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.5, "input_total": 402.0, "total_seconds": 3035.811, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27150.0, "total_seconds": 295739.3, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295280.0, "break_seconds": 219385.8}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258415.8, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234936.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429729.1, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:11:57+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 32.6, "input_total": 401.0, "total_seconds": 3070.344, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.4, "input_total": 402.0, "total_seconds": 3047.722, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27150.0, "total_seconds": 295750.6, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295288.9, "break_seconds": 219394.7}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258424.7, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234948.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429738.0, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:12:07+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 32.5, "input_total": 401.0, "total_seconds": 3080.354, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.3, "input_total": 402.0, "total_seconds": 3057.832, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27162.0, "total_seconds": 295757.6, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295298.3, "break_seconds": 219404.0}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258433.9, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234960.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429747.3, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:12:17+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 32.4, "input_total": 401.0, "total_seconds": 3090.364, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.2, "input_total": 402.0, "total_seconds": 3067.842, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27162.0, "total_seconds": 295767.0, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295307.7, "break_seconds": 219413.4}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258443.4, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234973.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429756.7, "break_seconds": 6108.012}]}, {"observed_at": "2026-10-16T09:12:27+08:00", "units": [{"id": "1", "name": "单极铆接", "status": "1", "yield_percent": 99.8, "oee_percent": 32.3, "input_total": 401.0, "total_seconds": 3100.374, "break_seconds": 0.0}, {"id": "2", "name": "延时单元", "status": "1", "yield_percent": 95.3, "oee_percent": 31.1, "input_total": 402.0, "total_seconds": 3077.752, "break_seconds": 0.0}, {"id": "3", "name": "冷却塔", "status": "3", "yield_percent": 100.0, "oee_percent": 0.0, "input_total": 4624.0, "total_seconds": 170919.7, "break_seconds": 170919.7}, {"id": "4", "name": "复校单元", "status": "2", "yield_percent": 87.7, "oee_percent": 20.1, "input_total": 27162.0, "total_seconds": 295778.7, "break_seconds": 8629.277}, {"id": "5", "name": "多级铆接单元", "status": "2", "yield_percent": 99.9, "oee_percent": 14.5, "input_total": 17153.0, "total_seconds": 295317.1, "break_seconds": 219422.8}, {"id": "6", "name": "耐压瞬时单元", "status": "1", "yield_percent": 96.4, "oee_percent": 16.3, "input_total": 17479.0, "total_seconds": 258452.7, "break_seconds": 0.0}, {"id": "7", "name": "移印单元", "status": "1", "yield_percent": 100.0, "oee_percent": 21.7, "input_total": 107128.0, "total_seconds": 1234985.0, "break_seconds": 96101.63}, {"id": "8", "name": "卡扣单元", "status": "1", "yield_percent": 99.7, "oee_percent": 27.9, "input_total": 48132.0, "total_seconds": 429766.1, "break_seconds": 6108.012}]}], "/api/summaries": [{"kind": "window-summary", "start_epoch": 1793000400.0, "end_epoch": 1793001000.0, "start_at": "2026-10-26T15:40:00+08:00", "end_at": "2026-10-26T15:50:00+08:00", "created_at": "2026-10-26T15:50:01+08:00", "sample_count": 60, "expected_sample_count": 60, "complete_sample_count": 0, "partial": false, "status_counts": {}, "alert_opened": 0, "alert_cleared": 0, "active_alert_count": 3, "units": [], "attention": ["采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。"], "text": ["窗口 2026-10-26T15:40:00+08:00 至 2026-10-26T15:50:00+08:00：采集 60 次（按配置约 60 次），三接口完整 0 次；采样覆盖基本完整。", "实际观测范围：2026-10-26T15:40:01+08:00 至 2026-10-26T15:49:51+08:00。", "末次采样设备状态：自动 0、待机 0、停机 0、未知状态 0。仅表示末次观测，源新鲜度未知。", "窗口内新增提醒 0 次、解除 0 次；末次保留 3 条提醒，其中待重新验证 0 条。解除不等于维修完成。", "质量筛选阈值 98%（待确认）；指标按设备分别比较，不计算跨工序平均合格率或平均 OEE。", "优先核查：采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。", "方法：固定窗口内按设备聚合快照和事件；投入增量只计相邻有效采样，跨缺失、回退区间不外推；不是订单产量或根因诊断。"], "company": "杭申电气", "source_urls": ["http://61.164.32.34:1013/break", "http://61.164.32.34:1013/totaltime", "http://61.164.32.34:1013/users"], "method": "固定时间窗 + 按设备聚合 + 缺失/计数回退保护", "method_reference": "https://github.com/prometheus/prometheus/blob/main/docs/querying/functions.md"}, {"kind": "window-summary", "start_epoch": 1792999800.0, "end_epoch": 1793000400.0, "start_at": "2026-10-26T15:30:00+08:00", "end_at": "2026-10-26T15:40:00+08:00", "created_at": "2026-10-26T15:40:01+08:00", "sample_count": 61, "expected_sample_count": 60, "complete_sample_count": 0, "partial": false, "status_counts": {}, "alert_opened": 6, "alert_cleared": 0, "active_alert_count": 3, "units": [], "attention": ["采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。"], "text": ["窗口 2026-10-26T15:30:00+08:00 至 2026-10-26T15:40:00+08:00：采集 61 次（按配置约 60 次），三接口完整 0 次；采样覆盖基本完整。", "实际观测范围：2026-10-26T15:30:01+08:00 至 2026-10-26T15:39:51+08:00。", "末次采样设备状态：自动 0、待机 0、停机 0、未知状态 0。仅表示末次观测，源新鲜度未知。", "窗口内新增提醒 6 次、解除 0 次；末次保留 3 条提醒，其中待重新验证 0 条。解除不等于维修完成。", "质量筛选阈值 98%（待确认）；指标按设备分别比较，不计算跨工序平均合格率或平均 OEE。", "优先核查：采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。", "方法：固定窗口内按设备聚合快照和事件；投入增量只计相邻有效采样，跨缺失、回退区间不外推；不是订单产量或根因诊断。"], "company": "杭申电气", "source_urls": ["http://61.164.32.34:1013/break", "http://61.164.32.34:1013/totaltime", "http://61.164.32.34:1013/users"], "method": "固定时间窗 + 按设备聚合 + 缺失/计数回退保护", "method_reference": "https://github.com/prometheus/prometheus/blob/main/docs/querying/functions.md"}, {"kind": "window-summary", "start_epoch": 1792999200.0, "end_epoch": 1792999800.0, "start_at": "2026-10-26T15:20:00+08:00", "end_at": "2026-10-26T15:30:00+08:00", "created_at": "2026-10-26T15:30:01+08:00", "sample_count": 60, "expected_sample_count": 60, "complete_sample_count": 0, "partial": false, "status_counts": {}, "alert_opened": 0, "alert_cleared": 0, "active_alert_count": 3, "units": [], "attention": ["采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。"], "text": ["窗口 2026-10-26T15:20:00+08:00 至 2026-10-26T15:30:00+08:00：采集 60 次（按配置约 60 次），三接口完整 0 次；采样覆盖基本完整。", "实际观测范围：2026-10-26T15:20:00+08:00 至 2026-10-26T15:29:51+08:00。", "末次采样设备状态：自动 0、待机 0、停机 0、未知状态 0。仅表示末次观测，源新鲜度未知。", "窗口内新增提醒 0 次、解除 0 次；末次保留 3 条提醒，其中待重新验证 0 条。解除不等于维修完成。", "质量筛选阈值 98%（待确认）；指标按设备分别比较，不计算跨工序平均合格率或平均 OEE。", "优先核查：采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。", "方法：固定窗口内按设备聚合快照和事件；投入增量只计相邻有效采样，跨缺失、回退区间不外推；不是订单产量或根因诊断。"], "company": "杭申电气", "source_urls": ["http://61.164.32.34:1013/break", "http://61.164.32.34:1013/totaltime", "http://61.164.32.34:1013/users"], "method": "固定时间窗 + 按设备聚合 + 缺失/计数回退保护", "method_reference": "https://github.com/prometheus/prometheus/blob/main/docs/querying/functions.md"}, {"kind": "window-summary", "start_epoch": 1792998600.0, "end_epoch": 1792999200.0, "start_at": "2026-10-26T15:10:00+08:00", "end_at": "2026-10-26T15:20:00+08:00", "created_at": "2026-10-26T15:20:00+08:00", "sample_count": 76, "expected_sample_count": 60, "complete_sample_count": 0, "partial": false, "status_counts": {}, "alert_opened": 9, "alert_cleared": 0, "active_alert_count": 3, "units": [], "attention": ["采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。"], "text": ["窗口 2026-10-26T15:10:00+08:00 至 2026-10-26T15:20:00+08:00：采集 76 次（按配置约 60 次），三接口完整 0 次；采样覆盖基本完整。", "实际观测范围：2026-10-26T15:10:08+08:00 至 2026-10-26T15:19:50+08:00。", "末次采样设备状态：自动 0、待机 0、停机 0、未知状态 0。仅表示末次观测，源新鲜度未知。", "窗口内新增提醒 9 次、解除 0 次；末次保留 3 条提醒，其中待重新验证 0 条。解除不等于维修完成。", "质量筛选阈值 98%（待确认）；指标按设备分别比较，不计算跨工序平均合格率或平均 OEE。", "优先核查：采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。", "方法：固定窗口内按设备聚合快照和事件；投入增量只计相邻有效采样，跨缺失、回退区间不外推；不是订单产量或根因诊断。"], "company": "杭申电气", "source_urls": ["http://61.164.32.34:1013/break", "http://61.164.32.34:1013/totaltime", "http://61.164.32.34:1013/users"], "method": "固定时间窗 + 按设备聚合 + 缺失/计数回退保护", "method_reference": "https://github.com/prometheus/prometheus/blob/main/docs/querying/functions.md"}, {"kind": "window-summary", "start_epoch": 1792998000.0, "end_epoch": 1792998600.0, "start_at": "2026-10-26T15:00:00+08:00", "end_at": "2026-10-26T15:10:00+08:00", "created_at": "2026-10-26T15:10:08+08:00", "sample_count": 62, "expected_sample_count": 60, "complete_sample_count": 0, "partial": false, "status_counts": {}, "alert_opened": 6, "alert_cleared": 0, "active_alert_count": 3, "units": [], "attention": ["采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。"], "text": ["窗口 2026-10-26T15:00:00+08:00 至 2026-10-26T15:10:00+08:00：采集 62 次（按配置约 60 次），三接口完整 0 次；采样覆盖基本完整。", "实际观测范围：2026-10-26T15:00:01+08:00 至 2026-10-26T15:09:58+08:00。", "末次采样设备状态：自动 0、待机 0、停机 0、未知状态 0。仅表示末次观测，源新鲜度未知。", "窗口内新增提醒 6 次、解除 0 次；末次保留 3 条提醒，其中待重新验证 0 条。解除不等于维修完成。", "质量筛选阈值 98%（待确认）；指标按设备分别比较，不计算跨工序平均合格率或平均 OEE。", "优先核查：采样覆盖不足或存在接口失败；先检查采集服务和网络，再判断设备异常。缺失时段没有推断为正常。", "方法：固定窗口内按设备聚合快照和事件；投入增量只计相邻有效采样，跨缺失、回退区间不外推；不是订单产量或根因诊断。"], "company": "杭申电气", "source_urls": ["http://61.164.32.34:1013/break", "http://61.164.32.34:1013/totaltime", "http://61.164.32.34:1013/users"], "method": "固定时间窗 + 按设备聚合 + 缺失/计数回退保护", "method_reference": "https://github.com/prometheus/prometheus/blob/main/docs/querying/functions.md"}], "/api/ai/config": {"enabled": true, "auto_summary": false, "provider": "deepseek", "model": "deepseek-v4-flash", "endpoint": "https://api.deepseek.com/chat/completions", "api_key_env": "DEEPSEEK_API_KEY", "max_retries": 2, "failure_threshold": 3, "send_raw_sources": false, "fallback_local": true, "api_key_configured": true, "circuit_open": false}, "/api/ai/history": [{"ok": true, "summary": "# 杭申电气生产线观测数据分析（重点对象：单极铆接 unit_id=1）\n\n> 前置说明：本次分析严格基于给定快照与 13:00–14:00 六个 10 分钟窗口。数据中**没有任何 unit_id=1 的记录**，所有关于单极铆接的判断均受此约束，下文会逐条标注证据边界。\n\n---\n\n## 一、现状总结\n\n1. **采集链路处于故障状态，而非生产状态异常。** 快照 `observed_at=2026-10-26T14:07:51+08:00`，`complete=false`，`units` 数组为空；`break`、`totaltime`、`users` 三个数据源同时报 **HTTP Error 500**，级别 critical，状态 active。这是观测事实，不是推断。\n\n2. **窗口层数据同样为空。** 13:00–14:00 共 6 个 10 分钟窗口，每窗口 `sample_count=60`（与期望一致）、实际观测跨度基本覆盖整窗，但 `complete_sample_count=0`（三接口完整 0 次），`status_counts={}`、`units=[]`。说明**采集调度器仍在按周期运行，但取数全部失败**——即问题出在数据源/接口层，不在采样频率配置层。\n\n3. **单极铆接（unit_id=1）没有任何可用观测。** 当前快照与 6 个窗口均未返回任何设备单元，`alerts` 中 `unit_id` 全部为 `null`。因此**无法判断单极铆接处于自动、待机还是停机，也无法给出其投入量、节拍、合格率或 OEE**。按平台方法说明，缺失时段未推断为正常，本次同样不做反向推断。\n\n4. **故障已持续一段时间。** `recent_events` 中同一组三接口 500 事件自 `12:36:42` 起反复 opened，直至 `14:07:51` 仍在 active（列表中最早可见 12:36:42，实际起点可能更早，事件列表可能被截断）。粗算**至少约 1.5 小时**未取得完整数据。\n\n5. **业务侧无法判断影响面。** 缺少生产计划、排班、故障码与检验分母，且平台已明确\"各工序投入量可能重复计数，不能相加为全线产量\"。因此**不能判断订单延期、产量达成率、良率是否异常**。\n\n---\n\n## 二、关键发现\n\n| # | 发现 | 证据 |\n|---|---|---|\n| 1 | 三个数据源同时 500，属同一故障面 | `offline:break` / `offline:totaltime` / `offline:users` 三条 critical，detail 均为 HTTP 500，同一时刻首次出现 |\n| 2 | 采样在跑、取数为空，属\"接口失败\"而非\"采集器停摆\" | 6 个窗口 `sample_count=60` 均达标，但 `complete_sample_count=0`；`collector_stale=false` |\n| 3 | 故障自 12:36 持续至 14:07 未恢复，且**无解除事件** | `recent_events` 中 `event=opened` 反复出现，`alert_cleared` 在 6 个窗口内均为 0，`active_alert_count=3` 恒定 |\n| 4 | 单极铆接未被本次数据覆盖 | `units=[]`；`alerts[].unit_id=null`，无 unit_id=1 的任何字段 |\n| 5 | 告警重复刷屏，可能掩盖其他异常 | 同一 `offline:break` key 在 ~90 分钟内多次 `opened`（12:36:42、12:38:02、12:39:22 … 14:07:51），未见去重/抑制 |\n| 6 | 质量阈值 98% 为\"待确认\"，不可当作公司标准 | 窗口文本明确标注\"质量筛选阈值 98%（待确认）\" |\n\n**关于单极铆接的异常判断，当前只能给出一句话结论：其状态\"未知\"。** 不能判定为停机，更不能判定为设备故障——`units=[]` 是采集失败的结果，不是设备空转的证据。\n\n---\n\n## 三、改进提升建议（3–5 条，均附证据）\n\n**建议 1｜把\"恢复三接口 500\"作为第一优先工单，按服务端排障路径逐层定位。**\n- 具体动作：登录 `61.164.32.34:1013` 所在主机，依次核查 —— ①应用进程是否存活、是否 OOM/重启循环；②应用日志中 500 的堆栈（是对接的数据库/中间件不可用，还是上游设备网关超时）；③该端口依赖的数据库连接池与磁盘空间；④三个接口是否共用同一后端服务（同时 500 高度提示共因）。\n- 对应证据：三条 critical 均为同一时刻、同一错误码；6 个窗口 `complete_sample_count=0` 而 `sample_count=60`，说明是取数失败而非调度失败。\n\n**建议 2｜在采集配置中显式核对 unit_id=1（单极铆接）的点位映射与纳管状态。**\n- 具体动作：检查设备台账/采集配置里 unit_id=1 的绑定关系——是否已配置、是否被列入本次查询的单元范围、其 `break`/`totaltime`/`users` 三类点位是否映射到已失效的字段名。恢复链路后，先单独对 unit_id=1 做一次单点验证查询，确认能返回自动/待机/停机状态与投入计数，再接入汇总。\n- 对应证据：`units=[]` 且 `alerts[].unit_id=null`，当前**无法证明单极铆接被正确纳管**；也可能是接口整体失败导致其为空，两种可能需分别排除。若单点验证仍为空，则问题在配置侧而非接口侧。\n\n**建议 3｜数据恢复后先做\"计数口径校验\"，再谈单极铆接的产量与节拍。**\n- 具体动作：取恢复后连续 3 个完整窗口，核对 unit_id=1 的投入计数字段是累计值还是增量值、是否存在跨班次清零、是否触发平台的\"计数回退保护\"。确认口径后再计算单位时间投入，并明确标注\"投入量 ≠ 成品产量\"。\n- 对应证据：平台方法说明\"投入增量只计相邻有效采样，跨缺失、回退区间不外推\"；本次恰有约 1.5 小时缺失，**恢复后首个窗口的增量必然失真**，不可直接当作该时段真实产出。\n\n**建议 4｜补齐计划、排班、故障码、检验分母四类主数据，否则达成率/良率/OEE 一律不出数。**\n- 具体动作：在监控侧对接当日生产计划（单极铆接的计划产量与节拍）、班次排班表、设备故障码字典、以及检验环节的合格/送检分母。四项到位前，看板对 unit_id=1 只显示\"状态+投入计数\"，不显示达成率与合格率。\n- 对应证据：summary 明确\"缺少生产计划，暂不能判断订单延期或产量达成率\"；窗口文本明确\"不计算跨工序平均合格率或平均 OEE\"；98% 阈值标注\"待确认\"。此项**证据不足以支撑任何具体阈值结论**，需业务方书面确认后才能定为正式标准。\n\n**建议 5｜对重复告警做聚合抑制与升级，避免 500 刷屏掩盖单极铆接的真实异常。**\n- 具体动作：对同一 `key`（如 `offline:break`）设置\"首次 opened 即建工单 + 后续同 key 在 N 分钟内只计数不重复开事件\"，同时设置升级规则（如持续 >30 分钟未恢复，升级至值班主管/信息化负责人）。建议把\"单极铆接连续 M 个窗口无有效采样\"单独设一条静默失效告警——本次正是接口故障让该设备\"被消失\"而无人察觉。\n- 对应证据：`recent_events` 中同一 key 在 ~90 分钟内反复 opened 十余次，而 `alert_cleared` 始终为 0；`active_alert_count` 恒为 3，说明告警系统在\"报\"但未在\"推\"。\n\n---\n\n## 四、优先核查（按顺序执行）\n\n1. **【P0，立即】** `61.164.32.34:1013` 三接口 500 的根因定位与恢复；恢复前所有设备状态结论一律挂\"数据不可用\"。证据：三条 critical + 6 窗口完整采样 0 次。\n2. **【P0】** 确认故障起点是否早于 12:36:42（事件列表疑似截断），以界定受影响时间窗长度。\n3. **【P1】** 核查 unit_id=1 单极铆接是否被正确纳管、点位映射是否有效（建议 2）。\n4. **【P1】** 恢复后核对单极铆接计数口径与首个窗口增量失真情况（建议 3）。\n5. **【P2】** 补充计划/排班/故障码/检验分母（建议 4）；确认 98% 阈值是否为正式标准（当前仅为待确认）。\n6. **【P2】** 告警去重与升级规则上线（建议 5）。\n\n---\n\n## 五、未知与限制\n\n- **单极铆接状态完全未知**：无法判断其在 12:36–14:07 期间是运行、待机还是停机；`units=[]` 不能反推为\"停机\"或\"未生产\"。\n- **不能等同于设备故障**：本次告警全部指向数据接口（HTTP 500），属信息系统侧问题；即使后续确认设备停机，也需故障码/现场记录佐证，不可由停机状态直接推断故障。\n- **投入量口径受限**：各工序投入量可能重复计数，不能相加为全线成品产量；缺失时段平台不外推，故该时段的真实投入为空白而非 0。\n- **无法评估业务影响**：缺生产计划、排班、检验分母，订单延期、产量达成率、良率、OEE 均无法计算。\n- **98% 质量阈值未经确认**：仅为平台当前配置值，**不是正式公司标准**，不可据此判定质量异常。\n- **历史基线缺失**：本次仅提供 13:00–14:00 六个窗口，无法做同比/环比，也无法判断该接口 500 是偶发还是长期反复。\n- **事件列表可能不完整**：`recent_events` 最早可见 12:36:42，但同一 key 反复 opened，实际故障起点需以服务端日志为准。\n- **快照本身 `complete=false`**：本次所有结论仅为\"截至 14:07:51 的观测事实\"，不代表之后状态。", "created_at": "2026-10-26T14:08:49+08:00", "model": "deepseek-v4-flash", "data_sent": "structured_metrics_only"}, {"ok": true, "summary": "## 现状总结\n\n- 观测时间：2026-09-30T15:20:28+08:00，`complete=false`，当前数据不完整。虽然 `collector_stale=false`，但这只表示采集器未被判定为陈旧，不等于数据已完整可用。\n- 当前活动提醒 3 条，均为 `critical`：`break`、`totaltime`、`users` 三个数据接口读取失败，错误为 `HTTP Error 500: Internal Server Error`。当前活动提醒首次出现于 13:35:13，最后观测到 15:20:28；事件记录还显示 9/30 11:11、13:28、13:33 等时间有同类接口失败记录，9/29 17:00 曾出现 `timed out`。\n- 最近 6 个 10 分钟窗口，即 14:20—15:20：每窗 `sample_count=60/expected_sample_count=60`，但 `complete_sample_count=0`，`status_counts={}`，`units=[]`。这说明轮询次数看似达标，但三接口完整快照为 0，设备单元数据不可用。\n- 本次读取 0 个设备单元：自动 0、待机 0、停机 0。该结果不能解释为“实际全线无设备、全停或全自动”，只能说明当前没有有效设备状态数据。\n- 当前有效提醒只有 3 条离线类提醒。历史事件中另有 OEE、合格率、持续停机、跨接口数值不一致等记录，但多数为待确认状态，不能直接判定当前生产劣化或设备故障。\n\n## 关键发现\n\n1. **当前首要问题是数据链路/接口故障，而不是可确认的设备故障。**  \n   证据：`break`、`totaltime`、`users` 三个接口同时 HTTP 500，且当前仍未解除；最近 6 个窗口三接口完整样本均为 0。\n\n2. **采集轮询在运行，但完整数据快照没有生成。**  \n   证据：14:20—15:20 各窗口 `sample_count=60`，但 `complete_sample_count=0`，`status_counts` 为空，`units` 为空。缺失时段没有被推断为正常，也不能据此判断异常恢复。\n\n3. **设备状态计数为 0 是数据缺失下的结果，不能当作真实生产状态。**  \n   证据：当前 `units=[]`，末次采样自动/待机/停机/未知均为 0。若没有有效接口数据，0 不能说明设备实际停机或待机。\n\n4. **历史事件中存在若干待确认告警，但证据不足以定性。**  \n   历史记录包括：OEE 低于试运行阈值的单元 1、2、4；合格率低于待确认阈值的单元 4、6；单元 5—8 持续停机待核查；单元 1 的 `TotalTime` 跨接口数值不一致。  \n   这些事件多发生在 2026-09-29，且规则状态为“待确认”或缺少分母、公式、计划、排班、故障码，不能直接认定为设备故障、质量事故或当前仍持续的问题。\n\n5. **阈值和产量口径必须谨慎使用。**  \n   质量筛选阈值 98% 标注为“待确认”，OEE 40% 为“试运行阈值”，不能称为正式公司标准。各工序投入量可能重复计数，不能相加为全线成品产量；缺少生产计划，不能判断订单延期或产量达成率。\n\n## 改进提升建议\n\n1. **立即按接口维度恢复数据链路。**  \n   对 `break`、`totaltime`、`users` 三个接口分别检查服务进程、网关、数据库连接、认证、超时设置、上游依赖和最近变更，重点查看 HTTP 500 堆栈与日志。  \n   证据：3 条当前活动 `critical` 提醒均为 HTTP 500，最后观测到 15:20:28；最近 6 个窗口完整样本均为 0。若恢复后仍为 0，再进一步检查采集服务与网络链路。\n\n2. **建立“完整样本连续为 0”的采集门禁和升级机制。**  \n   当 `complete_sample_count=0` 连续多个窗口出现时，自动触发运维升级，暂停基于设备状态的自动结论，并对重复 `offline` 事件做去重和升级。  \n   证据：14:20—15:20 连续 6 个窗口完整样本为 0；同一接口在 9/30 多个时间点反复出现 opened 记录。连续窗口阈值、责任人和升级路径需要补充确认。\n\n3. **复核历史 OEE 与质量告警的计算口径和分母。**  \n   调取单元 1、2、4 的 OEE 公式、计划生产时间、型号基准；调取单元 4、6 的检验样本、合格分母、统计窗口和工艺记录。  \n   证据：`oee:1/2/4` 低于试运行阈值，`quality:4` 为 68.8%，`quality:6` 为 96.5%，但规则状态为待确认，且未提供公式、计划时间和分母。只有补齐这些数据后，才能判断是真实劣化还是口径问题。\n\n4. **对停机待核查单元做排班、计划和故障码对账。**  \n   核查单元 5—8 在 9/29 16:22 前后持续停机 130 秒的原因：计划停机、换型、缺料、待料、设备故障还是其他。  \n   证据：`stop:5`、`stop:6`、`stop:7`、`stop:8` 均提示“缺少排班与停机原因”。需要补充排班表、停机原因记录、故障码、换型和缺料记录后，才能判断是否属于异常停机。\n\n5. **统一跨接口快照和投入/产出统计口径。**  \n   对单元 1 的 `TotalTime` 做同时间戳原子读取或时间对齐，确认是异步更新还是统计口径差异；同时定义投入量、产出量、合格率分母，明确各工序投入不可直接相加为全线成品产量。  \n   证据：`mismatch:totaltime:1` 提示 users 与辅助接口 TotalTime 不一致；summary 明确“各工序投入量可能重复计数，不能相加为全线产量”。需要补接口原子性方案和指标字典后再确认。\n\n## 优先核查\n\n- **P0：恢复数据接口。**  \n  优先处理 `break`、`totaltime`、`users` 的 HTTP 500，确认 13:35—15:20 期间是否仍有生产活动、是否存在安全或质量风险。\n- **P0：确认采集不完整期间的 0 状态不代表实际设备状态。**  \n  当前 `units=[]`、`status_counts={}`，不能据此判断设备全停、全自动或异常恢复。\n- **P1：复核历史告警。**  \n  包括 OEE 单元 1/2/4、质量单元 4/6、停机单元 5—8、`mismatch:totaltime:1`。需确认是否仍存在、是否已处理、解除是否等于维修完成。\n- **P1：确认阈值与口径。**  \n  质量 98%、OEE 40% 均为待确认或试运行阈值，需确认是否正式、适用范围、计算公式和数据来源。\n- **P2：补齐基础数据。**  \n  包括排班、生产计划、故障码、检验分母、型号基准、产线产出定义。\n\n## 未知与限制\n\n- 缺少排班、生产计划、故障码、检验分母、OEE 公式、计划生产时间和型号基准，无法判断订单延期、产量达成率或设备故障根因。\n- 不能把各工序投入量相加为全线成品产量。\n- 不能把停机状态直接说成设备故障；停机可能是计划停机、换型、缺料或其他原因。\n- 当前 `complete=false`，且三接口完整样本为 0；在数据链路恢复前，不能判定相关异常恢复。\n- 设备状态 0、`status_counts` 为空、`units` 为空，只能说明本次无有效设备数据，不能说明实际生产状态。\n- 历史事件中的 `active/cleared` 不必然代表当前状态；解除不等于维修完成。\n- 待确认阈值不是正式公司标准，需要人工核查和补充数据后再确认。\n- 本观测数据不支持根因诊断，只能作为优先核查和补数依据。", "created_at": "2026-09-30T15:21:04+08:00", "model": "deepseek-v4-flash", "data_sent": "structured_metrics_only"}, {"ok": true, "degraded": true, "code": "degraded_local", "summary": "总体判断：当前使用本地规则降级分析。\n\n关键发现：\n- 采集不完整，相关异常不能判定恢复，请先恢复数据链路。\n- 本次读取 0 个设备单元：自动 0、待机 0、停机 0。\n- 当前有 3 条提醒；规则尚未连续命中时，指标仍可先供人工核查。\n- 各工序投入量可能重复计数，不能相加为全线产量；缺少生产计划，暂不能判断订单延期或产量达成率。\n\n优先核查：\n- 云端连续失败 3 次，已降级本地规则：The read operation timed out\n- 请结合现场记录核查停机、质量和数据链路。\n\n未知与限制：\n- 本地规则不进行根因诊断，也不执行设备控制。", "created_at": "2026-09-30T13:50:15+08:00", "model": "local-rule-fallback", "data_sent": "none"}], "/api/ai/reports": [{"ok": true, "type": "daily", "ref": "2026-10-26", "report": "# 杭申电气制造运营部生产日报（2026-10-26）\n\n> 数据状态：采集不完整（`complete=false`）。本日报仅依据提供的数据与事件撰写，涉及设备状态、产量、质量与进度的结论均需人工核查。\n\n## 一、当日运行概况\n\n- **数据窗口**：2026-10-26 00:00:00 至 15:17:18（+08:00），非全天完整数据。\n- **汇总数据**：`samples=14065`，`summaries_today=10`，`events_today=50`。`samples` 为汇总样本量，**不等同于产量**；`units_today` 为空，无设备单元明细。\n- **当前读取状态**：`observed_at=15:17:18`，`complete=false`；本次读取 **0 个设备单元**，自动 0、待机 0、停机 0。`status_share` 全为 0.0%，但读取单元数为 0，**分母为 0，占比无统计意义**，不能解释为现场三态均为 0。\n- **活跃提醒**：当前 3 条提醒，均为 `critical` 级“数据接口读取失败”，来源为 `break`、`totaltime`、`users`，详情为 `HTTP Error 500: Internal Server Error`，状态 `active`，规则状态为“观测事实”。最新记录时间为 15:17:18。\n- **可见事件记录**：事件列表中可见 12:54:53、14:07:51、14:09:28、15:03:11、15:03:38、15:14:45、15:17:18 等时间点出现同组接口读取失败；事件总数 50，列表非全量，无法据此还原完整故障区间。\n- **投入量与产量**：本次未提供可用的工序投入量明细。按口径，投入量为接口累计口径，跨工序可能重复计数，**不可直接相加为全线产量**。无生产计划，不能判断订单延期或产量达成率。\n- **采集器状态**：`collector_stale=false`，但 `complete=false`；采集器未标记过期不等于数据完整。接口未提供源采样时间与检验分母，相关时效与质量结论**证据不足**。\n\n## 二、异常与风险\n\n| 异常/风险 | 证据 | 影响 | 证据状态 |\n|---|---|---|---|\n| 数据接口持续失败 | `break`、`totaltime`、`users` 均报 HTTP 500；最新 15:17:18 仍为 `active` | 当前无法读取设备单元，无法判断设备状态与异常是否恢复 | 观测事实 |\n| 采集不完整 | `complete=false`；读取 0 个设备单元；`status_share` 全 0 | 自动/待机/停机、停机时长无法量化；不能用于现场运行判断 | 观测事实，现场结论证据不足 |\n| 告警重复与噪声 | `events_today=50`，可见同一来源在多个时间点重复 `opened` | 可能掩盖真实异常，增加恢复确认难度 | 观测事实，完整分布证据不足 |\n| 生产现场风险不可评估 | 无设备单元明细、无工序投入明细、无生产计划 | 无法判断具体设备/工序停机、订单延期、产量达成 | 证据不足 |\n| 投入量口径风险 | 投入量为累计口径、跨工序可能重复 | 若直接相加会高估全线产量 | 口径约束明确；当前无明细可算 |\n| 质量指标不可计算 | 无检验分母、无检验数/合格数/不良数 | 无法计算合格率、不良率 | 证据不足 |\n\n## 三、原因判断\n\n### 1. 数据链路问题（当前可判定的主要问题）\n\n- `break`、`totaltime`、`users` 三个接口同时返回 HTTP 500，且当前读取 0 个设备单元、`complete=false`，表现为**上游接口/数据链路服务异常**。\n- 多个时间点重复出现同一组接口失败，最新 15:17:18 仍为 `active`，说明失败反复出现或尚未恢复；**不能判定异常已恢复**。\n- `collector_stale=false` 但 `complete=false`，说明采集器未标记过期并不代表数据完整，需继续排查接口服务、依赖服务、超时/鉴权及汇总链路。\n\n### 2. 生产现场问题（证据不足）\n\n- 当前“自动 0、待机 0、停机 0”来自**读取 0 个设备单元**，不能作为现场设备三态为 0 的依据。\n- 缺少设备级状态明细、工序投入明细、生产计划与检验分母，无法将异常归因到具体设备、工序或班次；**生产现场原因证据不足**。\n- 若现场存在停机、产出异常或质量波动，需通过人工巡检、补录和计划对照确认后方可判断。\n\n## 四、明日改进建议（3-5 条可执行动作）\n\n1. **优先恢复数据链路**：由数据链路负责人按 `break`、`totaltime`、`users` 三个来源排查 HTTP 500，检查接口服务日志、依赖服务、超时与鉴权配置；恢复后补采 12:54:53—15:17:18 区间数据，并校验 `complete=true`、设备单元读取数恢复、3 条活跃提醒关闭。\n2. **告警合并与恢复确认**：对同一来源短时间重复 `opened` 的事件合并为一张故障单；建议以“连续多次成功读取且 `complete=true`”作为恢复条件，减少 50 条事件造成的噪声，避免未恢复即误判。\n3. **人工巡检补位**：数据恢复前，由班组长按关键工序/设备定时记录自动、待机、停机状态、产出数量与异常原因，覆盖至班末并回填；用于临时判断现场是否受影响。\n4. **治理投入量口径**：明确投入量为累计口径，按“工序+设备+班次”去重后再汇总，禁止跨工序直接相加；报表中增加源采样时间、采集时间、单位与去重规则字段。\n5. **对接计划与质量分母**：获取当日/次日生产计划、订单交期及检验分母，建立产量达成率、延期风险与合格率对照；数据未恢复前，用人工产量与计划进行临时对照。\n\n## 五、需要补充的数据\n\n1. `break`、`totaltime`、`users` 接口 HTTP 500 的服务日志、依赖服务状态、修复记录与恢复时间。\n2. 今日 50 条事件的全量明细、去重前后记录、各来源故障区间及恢复事件。\n3. 设备单元清单及状态明细：自动/待机/停机/其他时长、原因、班次、所属工序。\n4. 各工序投入量明细：累计起始时间、单位、源采样时间、去重规则；并说明 `units_today` 为空的原因。\n5. 当日/次日生产计划：订单、计划产量、交期、班次计划。\n6. 检验分母数据：检验数、合格数、不良数、检验时间与统计口径。\n7. `samples=14065` 的定义与采集范围；采集器心跳、延迟及 `complete` 字段判定规则。\n8. 人工巡检记录与补采数据的完整性校验结果。", "model": "deepseek-v4-flash", "created_at": "2026-10-26T15:17:58+08:00", "rollup": {"samples": 14065, "events_today": 50, "summaries_today": 10, "status_share": {"自动": 0.0, "待机": 0.0, "停机": 0.0, "其他": 0.0}}}], "/api/me": {"ok": true, "auth_enabled": true, "system_name": "杭申电气生产线智能监控系统", "system_version": "V1.1.0", "user": {"username": "visitor", "name": "在线演示", "role": "管理员", "dept": "演示环境"}, "perms": {"views": ["overview", "devices", "unit", "alerts", "events", "summaries", "reports", "ai", "link", "health", "settings", "logs", "about"], "ai": true, "export": false, "logs": false, "system": true}}, "/api/system": {"system_name": "杭申电气生产线智能监控系统", "version": "V1.1.0", "host": "hangshen-demo", "platform": "GitHub Pages · 静态演示", "python": "—", "port": 0, "bind_host": "demo", "started_at": "演示环境", "uptime_seconds": 0, "db_path": "（演示版不持久化）", "db_size_bytes": 0, "counts": {"snapshots": 3000, "events": 20, "summaries": 5, "ai_summaries": 3}, "oplog_count": 0, "sessions": 1, "auth_enabled": true, "watchdog_alive": false, "poll_seconds": 10, "ai": {"provider": "deepseek", "model": "deepseek-v4-flash", "enabled": true, "key_configured": false}}, "/api/ai/report": {"ok": true, "type": "daily", "ref": "2026-10-26", "report": "# 杭申电气制造运营部生产日报（2026-10-26）\n\n> 数据状态：采集不完整（`complete=false`）。本日报仅依据提供的数据与事件撰写，涉及设备状态、产量、质量与进度的结论均需人工核查。\n\n## 一、当日运行概况\n\n- **数据窗口**：2026-10-26 00:00:00 至 15:17:18（+08:00），非全天完整数据。\n- **汇总数据**：`samples=14065`，`summaries_today=10`，`events_today=50`。`samples` 为汇总样本量，**不等同于产量**；`units_today` 为空，无设备单元明细。\n- **当前读取状态**：`observed_at=15:17:18`，`complete=false`；本次读取 **0 个设备单元**，自动 0、待机 0、停机 0。`status_share` 全为 0.0%，但读取单元数为 0，**分母为 0，占比无统计意义**，不能解释为现场三态均为 0。\n- **活跃提醒**：当前 3 条提醒，均为 `critical` 级“数据接口读取失败”，来源为 `break`、`totaltime`、`users`，详情为 `HTTP Error 500: Internal Server Error`，状态 `active`，规则状态为“观测事实”。最新记录时间为 15:17:18。\n- **可见事件记录**：事件列表中可见 12:54:53、14:07:51、14:09:28、15:03:11、15:03:38、15:14:45、15:17:18 等时间点出现同组接口读取失败；事件总数 50，列表非全量，无法据此还原完整故障区间。\n- **投入量与产量**：本次未提供可用的工序投入量明细。按口径，投入量为接口累计口径，跨工序可能重复计数，**不可直接相加为全线产量**。无生产计划，不能判断订单延期或产量达成率。\n- **采集器状态**：`collector_stale=false`，但 `complete=false`；采集器未标记过期不等于数据完整。接口未提供源采样时间与检验分母，相关时效与质量结论**证据不足**。\n\n## 二、异常与风险\n\n| 异常/风险 | 证据 | 影响 | 证据状态 |\n|---|---|---|---|\n| 数据接口持续失败 | `break`、`totaltime`、`users` 均报 HTTP 500；最新 15:17:18 仍为 `active` | 当前无法读取设备单元，无法判断设备状态与异常是否恢复 | 观测事实 |\n| 采集不完整 | `complete=false`；读取 0 个设备单元；`status_share` 全 0 | 自动/待机/停机、停机时长无法量化；不能用于现场运行判断 | 观测事实，现场结论证据不足 |\n| 告警重复与噪声 | `events_today=50`，可见同一来源在多个时间点重复 `opened` | 可能掩盖真实异常，增加恢复确认难度 | 观测事实，完整分布证据不足 |\n| 生产现场风险不可评估 | 无设备单元明细、无工序投入明细、无生产计划 | 无法判断具体设备/工序停机、订单延期、产量达成 | 证据不足 |\n| 投入量口径风险 | 投入量为累计口径、跨工序可能重复 | 若直接相加会高估全线产量 | 口径约束明确；当前无明细可算 |\n| 质量指标不可计算 | 无检验分母、无检验数/合格数/不良数 | 无法计算合格率、不良率 | 证据不足 |\n\n## 三、原因判断\n\n### 1. 数据链路问题（当前可判定的主要问题）\n\n- `break`、`totaltime`、`users` 三个接口同时返回 HTTP 500，且当前读取 0 个设备单元、`complete=false`，表现为**上游接口/数据链路服务异常**。\n- 多个时间点重复出现同一组接口失败，最新 15:17:18 仍为 `active`，说明失败反复出现或尚未恢复；**不能判定异常已恢复**。\n- `collector_stale=false` 但 `complete=false`，说明采集器未标记过期并不代表数据完整，需继续排查接口服务、依赖服务、超时/鉴权及汇总链路。\n\n### 2. 生产现场问题（证据不足）\n\n- 当前“自动 0、待机 0、停机 0”来自**读取 0 个设备单元**，不能作为现场设备三态为 0 的依据。\n- 缺少设备级状态明细、工序投入明细、生产计划与检验分母，无法将异常归因到具体设备、工序或班次；**生产现场原因证据不足**。\n- 若现场存在停机、产出异常或质量波动，需通过人工巡检、补录和计划对照确认后方可判断。\n\n## 四、明日改进建议（3-5 条可执行动作）\n\n1. **优先恢复数据链路**：由数据链路负责人按 `break`、`totaltime`、`users` 三个来源排查 HTTP 500，检查接口服务日志、依赖服务、超时与鉴权配置；恢复后补采 12:54:53—15:17:18 区间数据，并校验 `complete=true`、设备单元读取数恢复、3 条活跃提醒关闭。\n2. **告警合并与恢复确认**：对同一来源短时间重复 `opened` 的事件合并为一张故障单；建议以“连续多次成功读取且 `complete=true`”作为恢复条件，减少 50 条事件造成的噪声，避免未恢复即误判。\n3. **人工巡检补位**：数据恢复前，由班组长按关键工序/设备定时记录自动、待机、停机状态、产出数量与异常原因，覆盖至班末并回填；用于临时判断现场是否受影响。\n4. **治理投入量口径**：明确投入量为累计口径，按“工序+设备+班次”去重后再汇总，禁止跨工序直接相加；报表中增加源采样时间、采集时间、单位与去重规则字段。\n5. **对接计划与质量分母**：获取当日/次日生产计划、订单交期及检验分母，建立产量达成率、延期风险与合格率对照；数据未恢复前，用人工产量与计划进行临时对照。\n\n## 五、需要补充的数据\n\n1. `break`、`totaltime`、`users` 接口 HTTP 500 的服务日志、依赖服务状态、修复记录与恢复时间。\n2. 今日 50 条事件的全量明细、去重前后记录、各来源故障区间及恢复事件。\n3. 设备单元清单及状态明细：自动/待机/停机/其他时长、原因、班次、所属工序。\n4. 各工序投入量明细：累计起始时间、单位、源采样时间、去重规则；并说明 `units_today` 为空的原因。\n5. 当日/次日生产计划：订单、计划产量、交期、班次计划。\n6. 检验分母数据：检验数、合格数、不良数、检验时间与统计口径。\n7. `samples=14065` 的定义与采集范围；采集器心跳、延迟及 `complete` 字段判定规则。\n8. 人工巡检记录与补采数据的完整性校验结果。", "model": "deepseek-v4-flash", "created_at": "2026-10-26T15:17:58+08:00", "rollup": {"samples": 14065, "events_today": 50, "summaries_today": 10, "status_share": {"自动": 0.0, "待机": 0.0, "停机": 0.0, "其他": 0.0}}}, "/api/ai/ask": {"ok": true, "type": "ask", "ref": "当前哪台设备最需要关注？", "report": "演示模式说明：在线版为只读快照，AI 问答需在厂内系统调用 DeepSeek 实时生成。内网系统会根据当前设备状态、预警与今日汇总给出带证据的回答。", "model": "deepseek-v4-flash", "created_at": "演示环境"}, "/api/ai/explain": {"ok": true, "type": "explain", "title": "演示模式", "report": "演示模式说明：在线版为只读快照，异常排查需在厂内系统基于实时预警调用。", "model": "deepseek-v4-flash", "created_at": "演示环境"}, "/api/oplogs": []};
+(function(){
+  const origFetch = window.fetch ? window.fetch.bind(window) : null;
+  const reply = (obj, status) => new Response(JSON.stringify(obj), {status: status || 200, headers: {'Content-Type': 'application/json; charset=utf-8'}});
+  window.fetch = async function(input, init){
+    const raw = typeof input === 'string' ? input : (input && input.url) || '';
+    const path = raw.replace(/^https?:\/\/[^/]+/, '').split('?')[0];
+    if (path.startsWith('/api/')) {
+      if (path === '/api/alerts/read') return reply({ok: true, marked: 0});
+      if (path === '/api/logout') return reply({ok: true});
+      if (path === '/api/report.md') return reply('# 生产线监控报告\n\n演示模式：报告导出需在厂内系统使用。', 200);
+      if (path === '/api/ai/summary') return reply({ok: true, summary: '## 演示模式说明\n\n在线版为只读快照，AI 智能总结需在厂内系统调用 DeepSeek 实时生成。\n\n- 内网系统会结合当前设备状态、预警与十分钟总结给出结论\n- 输出包含现状总结、关键发现、改进提升建议\n- 数据边界：只发送结构化指标，不外发原始接口响应', model: 'demo', created_at: '演示环境', data_sent: 'structured_metrics_only'});
+      if (Object.prototype.hasOwnProperty.call(DEMO_MOCKS, path)) return reply(DEMO_MOCKS[path]);
+      return reply({});
+    }
+    return origFetch ? origFetch(input, init) : reply({});
+  };
+})();
+</script>
+<script>
+const el = id => document.getElementById(id);
+const esc = x => String(x ?? '—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (v,d=0) => v==null ? '—' : Number(v).toLocaleString('zh-CN',{maximumFractionDigits:d});
+let ME = null, ST = null, SYS = null, EVENTS = [], HISTORY = [], SUMMARIES = [], AICFG = null, AIHIST = [], LOGS = [];
+let PERMS = {views: [], ai: true, export: true, logs: false, system: false};
+const viewAllowed = k => !PERMS.views || !PERMS.views.length || PERMS.views.includes(k);
+let timer = null, sresItems = [];
+
+function mdRender(t){
+  const bold = s => s.replace(/\*{2,3}([^*\n]+?)\*{2,3}/g,'<strong>$1</strong>').replace(/\*{2,}/g,'');
+  const out = [];
+  for(const raw of String(t ?? '').split(/\r?\n/)){
+    const line = raw.trimEnd();
+    if(/^\s*#{1,6}\s+/.test(line)) out.push('<h3>'+bold(line.replace(/^\s*#{1,6}\s+/,''))+'</h3>');
+    else if(/^\s*([-*•])\s+/.test(line)) out.push('<li>'+bold(line.replace(/^\s*[-*•]\s+/,''))+'</li>');
+    else if(/^\s*\d+([.、)）])\s*/.test(line)) out.push('<li class="n">'+bold(line.replace(/^\s*\d+([.、)）])\s*/,''))+'</li>');
+    else if(line.trim()==='') out.push('<span class="gap"></span>');
+    else out.push('<p>'+bold(line)+'</p>');
+  }
+  return out.join('');
+}
+function toast(msg, ms=5000){
+  const t = el('toast'); t.textContent = msg; t.style.display='block';
+  setTimeout(()=>{ t.style.display='none'; }, ms);
+}
+const isAdmin = () => ME && ME.role === '管理员';
+
+/* ================= 两级菜单 ================= */
+const MENU = [
+  {grp:'运营监控', items:[['overview','运营总览','📊'], ['devices','设备监控','🏭'], ['alerts','预警中心','🔔']]},
+  {grp:'数据洞察', items:[['events','预警事件','📋'], ['summaries','滚动总结','🕒'], ['reports','报表中心','📑']]},
+  {grp:'智能分析', items:[['ai','AI 智能分析','✨']]},
+  {grp:'系统管理', items:[['link','数据链路','🔗'], ['health','运行监控','❤'], ['settings','系统设置','⚙️'], ['logs','操作日志','🧾',true], ['about','关于与帮助','❓']]}
+];
+const TITLES = Object.fromEntries(MENU.flatMap(g=>g.items).map(([k,l])=>[k,l]));
+TITLES.unit = '设备详情';
+const CRUMBS = {overview:'智能制造 / 运营监控', devices:'运营监控 / 设备监控', unit:'设备监控 / 设备详情', alerts:'运营监控 / 预警中心', events:'数据洞察 / 预警事件', summaries:'数据洞察 / 滚动总结', reports:'数据洞察 / 报表中心', ai:'智能分析 / AI 智能分析', link:'系统管理 / 数据链路', health:'系统管理 / 运行监控', settings:'系统管理 / 系统设置', logs:'系统管理 / 操作日志', about:'系统管理 / 关于与帮助'};
+
+function buildNav(){
+  el('nav').innerHTML = MENU.map(g =>
+    '<div class="grp">'+g.grp+'</div>' +
+    g.items.filter(([k])=>viewAllowed(k)).map(([k,label,ico]) =>
+      '<a href="#/'+k+'" data-k="'+k+'" id="nav-'+k+'"><span class="ico">'+ico+'</span><span class="tx">'+label+'</span>'+
+      (k==='alerts'?'<span class="nbadge" id="navAlertBadge" style="display:none">0</span>':'')+'</a>').join('')
+  ).join('');
+}
+function parseRoute(){
+  const raw = location.hash.replace(/^#\/?/,'') || 'overview';
+  const [path, qs] = raw.split('?');
+  const seg = path.split('/');
+  return {view: seg[0] || 'overview', arg: seg[1] || '', params: new URLSearchParams(qs || '')};
+}
+function route(){
+  const r = parseRoute();
+  let v = r.view;
+  if(!TITLES[v]) v = 'overview';
+  if(!viewAllowed(v)) { toast('当前账号无权访问该模块'); v = 'overview'; }
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  const node = el('v-' + v); if(node) node.classList.add('on');
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on', a.dataset.k === (v==='unit'?'devices':v)));
+  el('pageTitle').textContent = TITLES[v === 'unit' ? 'unit' : v] || '运营总览';
+  el('crumb').innerHTML = '杭申电气 · ' + (CRUMBS[v] || '智能制造') + '<b>' + (v==='unit' ? ('设备详情 · ' + esc(unitName(r.arg))) : (TITLES[v]||'')) + '</b>';
+  if(v === 'devices' && r.params.get('status')) el('statusFilter').value = r.params.get('status');
+  if(v === 'alerts' && r.params.get('sev')) el('sevFilter').value = r.params.get('sev');
+  if(v === 'unit') renderUnit(r.arg);
+  if(v === 'logs') loadLogs();
+  if(v === 'health') loadSystem();
+  if(v === 'reports') renderReports();
+  if(v === 'ai') renderAI();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+window.addEventListener('hashchange', route);
+
+function tickClock(){ el('clock').textContent = new Date().toLocaleTimeString('zh-CN',{hour12:false}); }
+setInterval(tickClock,1000); tickClock();
+
+/* ================= 登录用户 ================= */
+function applyPerms(){
+  ['aiRun','aiRunTop','aiReportRun','unitAi','askSend'].forEach(id=>{
+    const b = el(id); if(b) b.style.display = PERMS.ai ? '' : 'none';
+  });
+  const ex = el('export'); if(ex) ex.style.display = PERMS.export ? '' : 'none';
+  const rp = el('repGen'); if(rp) rp.style.display = PERMS.export ? '' : 'none';
+}
+
+async function loadMe(){
+  try{
+    const r = await fetch('/api/me',{cache:'no-store'});
+    if(r.status===401){ location.href='/login'; return false; }
+    const d = await r.json();
+    ME = d.user || {};
+    el('uav').textContent = (ME.name||'U').slice(0,1);
+    el('uname').textContent = ME.name || ME.username || '用户';
+    el('urole').textContent = (ME.role||'') + (ME.dept ? ' · '+ME.dept : '');
+    el('umenuName').textContent = ME.name || ME.username || '';
+    el('umenuDept').textContent = '（'+(ME.role||'') + (ME.dept?' · '+ME.dept:'')+'）';
+    el('fVer').textContent = (d.system_name||'生产线智能监控') + ' ' + (d.system_version||'V1.1.0');
+    el('footCopy').textContent = '© ' + new Date().getFullYear() + ' 杭州之江开关股份有限公司 · ' + (d.system_name||'生产线智能监控系统') + ' ' + (d.system_version||'V1.1.0');
+    PERMS = d.perms || PERMS;
+    applyPerms();
+    return true;
+  }catch(e){ return true; }
+}
+el('userbox').onclick = e => { e.stopPropagation(); el('usermenu').classList.toggle('show'); };
+document.addEventListener('click', () => { el('usermenu').classList.remove('show'); el('sres').classList.remove('show'); });
+el('mProfile').onclick = () => { location.hash='#/settings'; };
+el('mAbout').onclick = () => { location.hash='#/about'; };
+el('mLogout').onclick = async () => {
+  el('usermenu').classList.remove('show');
+  try{ await fetch('/api/logout',{method:'POST'}); }catch(e){}
+  location.href='/login';
+};
+el('bellBtn').onclick = () => { location.hash = '#/alerts'; };
+el('refreshBtn').onclick = () => refresh(true);
+
+/* ================= 全局搜索（真实数据） ================= */
+let searchTimer = null;
+el('search').oninput = e => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim().toLowerCase();
+  if(!q){ el('sres').classList.remove('show'); return; }
+  searchTimer = setTimeout(()=>doSearch(q), 180);
+};
+function doSearch(q){
+  const items = [];
+  (ST ? ST.units : []).forEach(u=>{
+    if((u.name+'').toLowerCase().includes(q) || ('#'+u.id).includes(q) || (u.status_label||'').includes(q))
+      items.push({t:'设备', n:u.name+' #'+u.id+' · '+u.status_label, go:'#/unit/'+u.id});
+  });
+  (ST ? ST.alerts||[] : []).forEach(a=>{ if((a.title+'').toLowerCase().includes(q)) items.push({t:'预警', n:a.title, go:'#/alerts'}); });
+  EVENTS.forEach(x=>{ if((x.title+'').toLowerCase().includes(q)) items.push({t:'事件', n:x.title, go:x.unit_id ? '#/unit/'+x.unit_id : '#/events'}); });
+  sresItems = items.slice(0,12);
+  el('sres').innerHTML = sresItems.length ? sresItems.map((x,i)=>'<div data-i="'+i+'">'+esc(x.n)+'<span class="st">'+x.t+'</span></div>').join('') : '<div class="st" style="padding:10px">无匹配结果</div>';
+  el('sres').classList.add('show');
+  el('sres').querySelectorAll('[data-i]').forEach(d=>{
+    d.onclick = () => { const it = sresItems[+d.dataset.i]; if(it){ location.hash = it.go; el('search').value=''; el('sres').classList.remove('show'); } };
+  });
+}
+
+/* ================= 数据刷新 ================= */
+async function refresh(manual=false){
+  try{
+    const rs = await Promise.all(['/api/status','/api/events','/api/history','/api/summaries'].map(u=>fetch(u,{cache:'no-store'})));
+    if(rs.some(r=>r.status===401)){ location.href='/login'; return; }
+    if(!rs.every(r=>r.ok)) throw new Error('采集器准备中或不可用');
+    const [d,ev,h,sm] = await Promise.all(rs.map(r=>r.json()));
+    ST = d; EVENTS = ev || []; HISTORY = h || []; SUMMARIES = sm || [];
+    renderAll();
+    if(manual) toast('数据已刷新 · ' + new Date().toLocaleTimeString('zh-CN',{hour12:false}));
+  }catch(e){
+    el('health').className='chip bad'; el('health').innerHTML='<span class="dot"></span>连接异常';
+    el('fDot').className='dot off'; el('fEngine').textContent='引擎连接异常';
+  }finally{
+    clearTimeout(timer); timer = setTimeout(()=>refresh(), 5000);
+  }
+}
+
+function renderAll(){
+  if(!ST) return;
+  renderHealth(); renderKpis(); renderAlerts(); renderUnits(); renderTrend();
+  renderEvents(); renderSummaries(); renderOverviewInfo(); renderLink(); renderSettings();
+  const rr = parseRoute();
+  if(rr.view === 'ai') renderAI();
+  if(rr.view === 'unit') renderUnit(rr.arg);
+  if(rr.view === 'reports') renderReports();
+  if(rr.view === 'health') renderSysCards(SYS);
+  if(rr.view === 'about') renderAbout();
+}
+
+function renderHealth(){
+  const d = ST, ok = d.complete && !d.collector_stale;
+  el('health').className = 'chip ' + (ok?'ok':'bad');
+  el('health').innerHTML = '<span class="dot"></span>' + (d.collector_stale ? '采集器未更新' : d.complete ? '三接口采集正常' : '部分接口异常');
+  el('fDot').className = 'dot' + (ok?'':' off');
+  el('fEngine').textContent = ok ? '采集引擎运行中' : '采集引擎异常';
+  el('ovDesc').textContent = '实时采集 ' + (d.config.poll_seconds||10) + ' 秒/次 · 数据采集于 ' + new Date(d.observed_at).toLocaleString('zh-CN');
+  const unread = d.unread_alerts != null ? d.unread_alerts : (d.alerts||[]).filter(a=>!a.read).length;
+  const bd = el('bellDot'); bd.style.display = unread?'grid':'none'; bd.textContent = unread;
+  const nb = el('navAlertBadge'); if(nb){ nb.style.display = unread?'inline-block':'none'; nb.textContent = unread; }
+}
+
+function renderKpis(){
+  const d = ST, c = s => d.units.filter(u=>u.status===s).length;
+  const unread = (d.alerts||[]).filter(a=>!a.read).length;
+  const cards = [
+    ['设备单元', d.units.length, '台在线采集', '#/devices'],
+    ['自动运行', c('2'), '台处于自动状态', '#/devices?status=2'],
+    ['待机', c('1'), '台待机', '#/devices?status=1'],
+    ['停机待核查', c('3'), '台停机', '#/devices?status=3'],
+    ['当前提醒', (d.alerts||[]).length, unread ? ('未读 '+unread+' 条 ›') : '全部已读 ›', '#/alerts']
+  ];
+  const html = cards.map(([l,v,s,go])=>'<div class="k" onclick="location.hash=\''+go+'\'"><div class="lb">'+l+'</div><div class="nm">'+v+'</div><div class="mini">'+s+' ›</div></div>').join('');
+  el('kpis').innerHTML = html;
+  if(el('kpis2')) el('kpis2').innerHTML = html;
+  el('alertCount').textContent = (d.alerts||[]).length + ' 条';
+  el('alertCount2').textContent = (d.alerts||[]).length + ' 条';
+}
+
+function alertHtml(a){
+  const read = !!a.read;
+  return '<div class="alert '+esc(a.severity)+(read?' isread':' unread')+'"><div class="t">'
+    + (read?'':'<span class="unreadDot"></span>')
+    + esc(a.title)
+    + '<span class="badge'+(read?' gray':'')+'">'+(read?'已读 · ':'')+esc(a.rule_status)+'</span>'
+    + (a.state==='unverified'?' <span class="badge">待重新验证</span>':'')
+    + '</div><div class="d">'+esc(a.detail)+'</div>'
+    + '<div class="m">来源 /'+esc(a.source)+' · 首次 '+esc(a.first_seen)
+    + (a.unit_id ? ' · <span class="linkish" onclick="location.hash=\'#/unit/'+esc(a.unit_id)+'\'">查看设备 ›</span>' : '')
+    + ' · <span class="linkish" onclick="explainAlert(\''+esc(a.key)+'\')">AI 排查</span>'
+    + (read ? '' : ' · <span class="linkish" onclick="markRead([\''+esc(a.key)+'\'])">标为已读</span>')
+    + '</div></div>';
+}
+async function markRead(keys, all){
+  try{
+    const r = await fetch('/api/alerts/read',{method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(all ? {all:true} : {keys: keys || []})});
+    if(r.status===401){ location.href='/login'; return; }
+    const d = await r.json();
+    if(d.ok){ if(d.marked) toast('已标记 ' + d.marked + ' 条为已读', 2400); await refresh(); }
+    else toast(d.error || '标记失败');
+  }catch(e){ toast('标记失败：' + e.message); }
+}
+function renderAlerts(){
+  const d = ST, list = d.alerts || [];
+  el('alerts').innerHTML = list.slice(0,5).map(alertHtml).join('') || '<div class="empty">暂未达到提醒条件。试运行规则需连续命中，不代表所有业务正常。</div>';
+  const sev = el('sevFilter') ? el('sevFilter').value : '';
+  const src = el('srcFilter') ? el('srcFilter').value : '';
+  let shown = list;
+  if(sev) shown = shown.filter(a=>a.severity===sev);
+  if(src) shown = shown.filter(a=>a.source===src);
+  el('alerts2').innerHTML = shown.map(alertHtml).join('') || '<div class="empty">当前无匹配提醒。</div>';
+  const ub = el('unreadBadge');
+  if(ub) ub.textContent = '未读 ' + (d.unread_alerts != null ? d.unread_alerts : (d.alerts||[]).filter(a=>!a.read).length);
+}
+
+function unitRow(u, withTime, withNo){
+  const t = new Date(ST.observed_at).toLocaleTimeString('zh-CN',{hour12:false});
+  return '<tr class="clickable" onclick="location.hash=\'#/unit/'+esc(u.id)+'\'">' +
+    '<td>'+esc(u.name)+' <small>#'+esc(u.id)+'</small></td>' +
+    (withNo ? '<td>'+esc(u.unit_no)+'</td>' : '') +
+    '<td class="st'+esc(u.status)+'">'+esc(u.status_label)+'</td>' +
+    '<td class="r">'+fmt(u.input_total)+'</td>' +
+    (withNo ? '' : '<td class="r">'+(u.input_delta==null?'—':fmt(u.input_delta))+'</td>') +
+    '<td class="r '+(u.yield_percent!=null&&u.yield_percent<ST.config.rules.yield_min_percent?'bad':'')+'">'+fmt(u.yield_percent,1)+'%</td>' +
+    '<td class="r">'+fmt(u.oee_percent,1)+'%</td>' +
+    '<td class="r">'+fmt(u.total_seconds==null?null:u.total_seconds/3600,2)+'</td>' +
+    '<td class="r">'+fmt(u.break_count)+'</td>' +
+    '<td class="r">'+fmt(u.break_seconds==null?null:u.break_seconds/3600,2)+'</td>' +
+    '<td class="r">'+(u.status==='3'?fmt(u.observed_stop_seconds):'—')+'</td>' +
+    (withTime ? '<td>'+t+'</td>' : '') + '</tr>';
+}
+function renderUnits(){
+  const d = ST;
+  el('units').innerHTML = d.units.map(u=>unitRow(u,false,false)).join('') || '<tr><td colspan="10"><div class="empty">暂无设备数据</div></td></tr>';
+  const f = el('statusFilter') ? el('statusFilter').value : '';
+  const list = f ? d.units.filter(u=>u.status===f) : d.units;
+  el('devCount').textContent = '共 ' + list.length + ' 台' + (f ? '（已按状态筛选）' : '');
+  el('units2').innerHTML = list.map(u=>unitRow(u,true,true)).join('') || '<tr><td colspan="11"><div class="empty">该状态下暂无设备</div></td></tr>';
+}
+
+/* ================= 设备详情（联动核心） ================= */
+function unitById(id){ return ST ? ST.units.find(u=>String(u.id)===String(id)) : null; }
+function unitName(id){ const u = unitById(id); return u ? u.name : ('#'+id); }
+function renderUnit(id){
+  if(!ST) { el('unitHead').innerHTML = '<div class="empty">正在加载设备数据…</div>'; return; }
+  const u = unitById(id);
+  if(!u){ el('unitHead').innerHTML = '<div class="empty">未找到设备 #'+esc(id)+'，可能已从接口移除。</div>'; el('unitKpis').innerHTML=''; return; }
+  el('unitHead').innerHTML = '<div class="devhead"><div class="bigav">'+esc(u.name.slice(0,1))+'</div><div><h1>'+esc(u.name)+' <span class="badge">#'+esc(u.id)+' · 编号 '+esc(u.unit_no)+'</span></h1>'
+    + '<div class="sub">状态 <b class="st'+esc(u.status)+'">'+esc(u.status_label)+'</b> · 采集于 '+new Date(ST.observed_at).toLocaleString('zh-CN')+' · <span class="linkish" onclick="location.hash=\'#/devices\'">返回设备列表</span></div></div>'
+    + '<div style="margin-left:auto"><button class="btn" onclick="location.hash=\'#/ai\'">全局 AI 分析</button></div></div>';
+  const cards = [
+    ['累计投入量', fmt(u.input_total), '件（接口累计）'],
+    ['本次增量', u.input_delta==null?'—':fmt(u.input_delta), u.delta_seconds?'间隔 '+fmt(u.delta_seconds,1)+' 秒':'需两次采集'],
+    ['合格率', fmt(u.yield_percent,1)+'%', '阈值 '+ST.config.rules.yield_min_percent+'%'],
+    ['OEE', fmt(u.oee_percent,1)+'%', '阈值 '+ST.config.rules.oee_min_percent+'%'],
+    ['开启时长', fmt(u.total_seconds==null?null:u.total_seconds/3600,2)+' h', '接口累计'],
+    ['故障次数', fmt(u.break_count), '累计'],
+    ['故障时长', fmt(u.break_seconds==null?null:u.break_seconds/3600,2)+' h', '累计'],
+    ['观测停机', (u.status==='3'?fmt(u.observed_stop_seconds)+' s':'—'), '连续观测']
+  ];
+  el('unitKpis').innerHTML = cards.map(([l,v,s],i)=>'<div class="card" style="padding:12px 14px;--c:#0e5b9f"><div class="mini" style="font-weight:700">'+l+'</div><div style="font-size:22px;font-weight:800;color:'+(l.includes('合格率')&&u.yield_percent<ST.config.rules.yield_min_percent?'#e5484d':l==='OEE'&&u.oee_percent<ST.config.rules.oee_min_percent?'#f59e0b':'#0e5b9f')+'">'+v+'</div><div class="mini">'+s+'</div></div>').join('');
+  const al = (ST.alerts||[]).filter(a=>String(a.unit_id)===String(u.id));
+  el('unitAlertCount').textContent = al.length + ' 条';
+  el('unitAlerts').innerHTML = al.map(alertHtml).join('') || '<div class="empty">该设备当前无提醒</div>';
+  const evs = EVENTS.filter(e=>String(e.unit_id)===String(u.id));
+  el('unitEventCount').textContent = evs.length + ' 条';
+  el('unitEvents').innerHTML = evs.map(e=>'<div class="event"><span class="badge">'+(e.event==='opened'?'出现':'解除')+'</span> '+esc(e.title)+'<div class="m">'+esc(e.at)+' · '+esc(e.detail)+'</div></div>').join('') || '<div class="empty">该设备暂无事件记录</div>';
+  el('unitRaw').innerHTML = '<table class="kv">'+Object.entries(u.raw||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</table>';
+  el('unitTrendHint').textContent = u.name + ' · ' + HISTORY.length + ' 个样本';
+  drawUnitChart(u.id);
+  el('unitAi').onclick = () => runAI('设备：' + u.name + '（unit_id=' + u.id + '）');
+  el('unitMetric').onchange = () => drawUnitChart(u.id);
+}
+function drawUnitChart(id){
+  const metric = el('unitMetric') ? el('unitMetric').value : 'yield_percent';
+  const pts = HISTORY.map(h=>({t:h.observed_at, v:(h.units.find(x=>String(x.id)===String(id))||{})[metric]}));
+  const good = pts.filter(p=>p.v!=null);
+  const svg = el('unitChart');
+  if(good.length<2){ svg.innerHTML=''; return; }
+  const min = Math.min(...good.map(p=>p.v)), max = Math.max(...good.map(p=>p.v));
+  const lo = min===max?min-1:min, hi = min===max?max+1:max;
+  let paths=[], cur=[];
+  pts.forEach((p,i)=>{
+    if(p.v==null){ if(cur.length) paths.push(cur.join(' ')); cur=[]; return; }
+    cur.push((45+i/(pts.length-1)*555)+','+(150-(p.v-lo)/(hi-lo)*120));
+  });
+  if(cur.length) paths.push(cur.join(' '));
+  svg.innerHTML = '<line x1="45" y1="150" x2="600" y2="150" stroke="#c9dcee"/>'
+    + '<text x="2" y="24" font-size="10" fill="#5a7189">'+esc(fmt(hi,1))+'</text>'
+    + '<text x="2" y="150" font-size="10" fill="#5a7189">'+esc(fmt(lo,1))+'</text>'
+    + paths.map(p=>'<polyline points="'+p+'" fill="none" stroke="#0aa06e" stroke-width="2.4"/>').join('');
+}
+
+function renderTrend(){
+  if(!ST) return;
+  const sel = el('device'), saved = sel.value;
+  sel.innerHTML = ST.units.map(u=>'<option value="'+esc(u.id)+'">'+esc(u.name)+'</option>').join('');
+  if([...sel.options].some(o=>o.value===saved)) sel.value = saved;
+  drawChart();
+}
+function drawChart(){
+  const id = el('device').value, metric = el('metric').value;
+  const pts = HISTORY.map(h=>({t:h.observed_at, v:(h.units.find(u=>String(u.id)===String(id))||{})[metric]}));
+  const good = pts.filter(p=>p.v!=null);
+  if(good.length<2){ el('chart').innerHTML=''; el('trendNote').textContent='至少两个有效历史样本后显示曲线'; return; }
+  const min = Math.min(...good.map(p=>p.v)), max = Math.max(...good.map(p=>p.v));
+  const lo = min===max?min-1:min, hi = min===max?max+1:max;
+  const paths=[]; let cur=[];
+  pts.forEach((p,i)=>{
+    if(p.v==null){ if(cur.length) paths.push(cur.join(' ')); cur=[]; return; }
+    cur.push((45+i/(pts.length-1)*555)+','+(150-(p.v-lo)/(hi-lo)*120));
+  });
+  if(cur.length) paths.push(cur.join(' '));
+  el('chart').innerHTML = '<line x1="45" y1="150" x2="600" y2="150" stroke="#c9dcee"/>'
+    + '<text x="2" y="24" font-size="10" fill="#5a7189">'+esc(fmt(hi,1))+'</text>'
+    + '<text x="2" y="150" font-size="10" fill="#5a7189">'+esc(fmt(lo,1))+'</text>'
+    + paths.map(p=>'<polyline points="'+p+'" fill="none" stroke="#0aa06e" stroke-width="2.4"/>').join('');
+  el('trendNote').textContent = new Date(pts[0].t).toLocaleTimeString() + ' — ' + new Date(pts.at(-1).t).toLocaleTimeString() + ' · ' + good.length + ' 个有效样本 · 缺失区间断线，不补零';
+}
+
+function renderEvents(){
+  const f = el('eventFilter') ? el('eventFilter').value : '';
+  const list = f ? EVENTS.filter(e=>e.event===f) : EVENTS;
+  el('eventsCount').textContent = list.length + ' 条';
+  el('events').innerHTML = list.map(e=>'<div class="event"><span class="badge">'+(e.event==='opened'?'出现':'解除')+'</span> '+esc(e.title)+
+    '<div class="m">'+esc(e.at)+' · '+esc(e.detail)+(e.unit_id?' · <span class="linkish" onclick="location.hash=\'#/unit/'+esc(e.unit_id)+'\'">设备 ›</span>':'')+'</div></div>').join('') || '<div class="empty">尚无事件记录</div>';
+}
+function renderSummaries(){
+  el('summariesCount').textContent = SUMMARIES.length + ' 条';
+  el('summaries').innerHTML = SUMMARIES.map(s=>'<div class="event"><b>'+esc(s.start_at)+' 至 '+esc(s.end_at)+'</b><div style="margin:4px 0">'+s.text.map(x=>esc(x)).join('<br>')+'</div><div class="m">样本 '+s.sample_count+' 次 · 新增提醒 '+s.alert_opened+' · 解除 '+s.alert_cleared+'</div></div>').join('') || '<div class="empty">尚未完成第一个十分钟窗口</div>';
+}
+
+function renderOverviewInfo(){
+  const d = ST;
+  const rows = [
+    ['采集周期', (d.config.poll_seconds||10)+' 秒 / 次'],
+    ['接口状态', d.complete?'三接口完整':'部分接口异常'],
+    ['本次采集', new Date(d.observed_at).toLocaleString('zh-CN')],
+    ['数据保留', '快照 '+(d.config.retention_days||30)+' 天 · 总结 '+(d.config.summary_retention_days||180)+' 天'],
+    ['当前登录', ((ME&&ME.name)||'—')+'（'+((ME&&ME.role)||'')+'）'],
+    ['所属单位', '杭州之江开关股份有限公司']
+  ];
+  el('overviewInfo').innerHTML = '<table class="kv">'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</table>';
+}
+
+/* ================= 报表中心（真实） ================= */
+function renderReports(){
+  if(!ST) return;
+  const d = ST;
+  const rows = [
+    ['报告基准时间', new Date(d.observed_at).toLocaleString('zh-CN')],
+    ['覆盖设备', d.units.length + ' 台'],
+    ['当前提醒条目', (d.alerts||[]).length + ' 条'],
+    ['事件记录', EVENTS.length + ' 条'],
+    ['十分钟总结', SUMMARIES.length + ' 条'],
+    ['采集完整度', d.complete ? '三接口完整' : '部分接口异常']
+  ];
+  el('repInfo').innerHTML = '<table class="kv">'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</table>';
+  const exports = (LOGS||[]).filter(x=>x.action==='导出报告').slice(-8).reverse();
+  el('repLogs').innerHTML = exports.length ? exports.map(x=>'<div class="event">'+esc(x.at)+' · '+esc(x.user)+'<div class="m">'+esc(x.detail||'')+'</div></div>').join('') : '<div class="empty">暂无导出记录（导出后自动出现在这里）</div>';
+}
+
+/* ================= 数据链路 ================= */
+function renderLink(){
+  const d = ST;
+  el('sources').innerHTML = Object.entries(d.sources||{}).map(([n,s]) =>
+    '<div class="source"><b>'+(s.ok?'● 正常':'✕ 异常')+' /'+esc(n)+'</b><div class="mini">'+(s.ok?('读取成功 · '+s.duration_ms+' ms'):esc(s.error))+'</div><a class="mini" href="'+esc(s.url)+'" target="_blank" rel="noreferrer">查看原始接口 ↗</a><div class="mini">'+esc(s.fetched_at)+'</div></div>').join('');
+  el('linkInfo').innerHTML = '<table class="kv">' + [
+    ['采集方式','只读 HTTP 轮询，不写入生产系统'],['采集周期',(d.config.poll_seconds||10)+' 秒'],
+    ['接口完整度', d.complete?'三接口完整':'不完整（部分接口异常）'],
+    ['源时间戳','接口未提供，页面时间为本系统采集时间'],
+    ['关联键','unit_id / unitid（不使用 UnitNo 或数组顺序）']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('') + '</table>';
+  const r = d.config.rules;
+  el('rulesInfo').innerHTML = '<table class="kv">' + [
+    ['合格率下限', r.yield_min_percent+'%'],['自动态 OEE 下限', r.oee_min_percent+'%'],
+    ['持续停机', r.stop_observed_seconds+' 秒'],['自动态无投入增量', r.no_input_seconds+' 秒'],
+    ['全线字段不变', r.unchanged_seconds+' 秒'],['连续命中次数', r.consecutive_samples+' 次'],
+    ['确认状态', r.confirmed?'已确认':'待确认（试运行）']
+  ].map(x=>'<tr><td>'+x[0]+'</td><td>'+esc(x[1])+'</td></tr>').join('') + '</table>';
+}
+
+/* ================= 运行监控 & 设置（真实数据） ================= */
+async function loadSystem(){
+  try{
+    const r = await fetch('/api/system',{cache:'no-store'});
+    if(r.status===401){ location.href='/login'; return; }
+    if(!r.ok){ toast('运行信息读取失败'); return; }
+    SYS = await r.json();
+    renderSysCards(SYS); renderSettings(); renderAbout(); renderReports();
+  }catch(e){ toast('运行信息读取失败：' + e.message); }
+}
+function humanUptime(sec){
+  const d = Math.floor(sec/86400), h = Math.floor(sec%86400/3600), m = Math.floor(sec%3600/60);
+  return (d?d+' 天 ':'') + h + ' 小时 ' + m + ' 分';
+}
+function humanSize(b){
+  if(b > 1048576) return (b/1048576).toFixed(1) + ' MB';
+  if(b > 1024) return (b/1024).toFixed(1) + ' KB';
+  return b + ' B';
+}
+function renderSysCards(s){
+  if(!s) return;
+  const cards = [
+    ['服务运行时长', humanUptime(s.uptime_seconds), '启动于 ' + s.started_at],
+    ['活跃会话', s.sessions + ' 个', '认证 ' + (s.auth_enabled?'已启用':'已关闭')],
+    ['数据库大小', humanSize(s.db_size_bytes), '数据库文件'],
+    ['看门狗', s.watchdog_alive?'守护中':'未运行', s.watchdog_alive?'掉线自动拉起':'请手动启动看护']
+  ];
+  el('sysKpis').innerHTML = cards.map(([l,v,sub],i)=>'<div class="card" style="padding:12px 15px"><div class="mini" style="font-weight:700">'+l+'</div><div style="font-size:23px;font-weight:800;color:'+(i===3&&!s.watchdog_alive?'#e5484d':'#0e5b9f')+'">'+v+'</div><div class="mini">'+sub+'</div></div>').join('');
+  el('sysInfo').innerHTML = '<table class="kv">' + [
+    ['系统名称', s.system_name],['版本', s.version],['主机名', s.host],['操作系统', s.platform],
+    ['Python', s.python],['监听地址', s.bind_host + ' : ' + s.port],['启动时间', s.started_at],['运行时长', humanUptime(s.uptime_seconds)]
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('') + '</table>';
+  const c = s.counts || {};
+  el('sysDb').innerHTML = '<table class="kv">' + [
+    ['数据库', s.db_path],['文件大小', humanSize(s.db_size_bytes)],
+    ['采集快照', (c.snapshots??'—') + ' 条'],['事件记录', (c.events??'—') + ' 条'],
+    ['十分钟总结', (c.summaries??'—') + ' 条'],['AI 分析记录', (c.ai_summaries??'—') + ' 条'],
+    ['操作日志', s.oplog_count + ' 条']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('') + '</table>';
+  el('sysGuard').innerHTML = '<table class="kv">' + [
+    ['看门狗状态', s.watchdog_alive ? '运行中（60 秒自检）' : '未运行'],
+    ['采集周期', s.poll_seconds + ' 秒'],
+    ['AI 服务', (s.ai?.enabled?'已启用':'未启用') + ' · ' + (s.ai?.model||'—') + ' · 密钥' + (s.ai?.key_configured?'已配置':'未配置')],
+    ['登录认证', s.auth_enabled ? '启用 · 会话 12 小时' : '关闭']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('') + '</table>';
+}
+
+function renderSettings(){
+  const d = ST; if(!d) return;
+  const s = SYS || {};
+  el('setCollect').innerHTML = '<table class="kv">' + [
+    ['采集周期',(d.config.poll_seconds||10)+' 秒'],['接口超时',(d.config.timeout_seconds||6)+' 秒'],
+    ['快照保留',(d.config.retention_days||30)+' 天'],['总结保留',(d.config.summary_retention_days||180)+' 天'],
+    ['监听地址', (s.bind_host||'0.0.0.0') + ' : ' + (s.port||8765)],
+    ['登录认证', s.auth_enabled ? '已启用' : '未启用']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('') + '</table>';
+  const r = d.config.rules;
+  el('setRules').innerHTML = '<table class="kv">' + [
+    ['合格率下限',r.yield_min_percent+'%'],['OEE 下限',r.oee_min_percent+'%'],
+    ['观测停机',r.stop_observed_seconds+' 秒'],['无投入增量',r.no_input_seconds+' 秒'],
+    ['字段不变',r.unchanged_seconds+' 秒'],['规则确认',r.confirmed?'已确认':'待业务确认']
+  ].map(x=>'<tr><td>'+x[0]+'</td><td>'+esc(x[1])+'</td></tr>').join('') + '</table>';
+  const ai = s.ai || {};
+  el('setAi').innerHTML = '<table class="kv">' + [
+    ['服务商', ai.provider || (AICFG&&AICFG.provider) || '—'],
+    ['模型', ai.model || (AICFG&&AICFG.model) || '—'],
+    ['状态', (ai.enabled?'已启用':'未启用')],
+    ['密钥配置', ai.key_configured?'已配置（环境变量）':'未配置'],
+    ['自动分析', (AICFG&&AICFG.auto_summary)?'开启':'关闭（人工触发）'],
+    ['数据范围','仅结构化指标，不含原始响应']
+  ].map(x=>'<tr><td>'+x[0]+'</td><td>'+esc(x[1])+'</td></tr>').join('') + '</table>';
+  el('setUser').innerHTML = '<table class="kv">' + [
+    ['当前账号',(ME&&ME.username)||'—'],['姓名',(ME&&ME.name)||'—'],
+    ['角色',(ME&&ME.role)||'—'],['部门',(ME&&ME.dept)||'—'],
+    ['权限范围', '可访问 ' + (PERMS.views ? PERMS.views.length : 0) + ' 个模块' + (PERMS.ai ? ' · 含 AI 分析' : ' · 不含 AI') + (PERMS.export ? ' · 可导出' : '') + (PERMS.logs ? ' · 含审计日志' : '')],
+    ['会话有效期','12 小时']
+  ].map(x=>'<tr><td>'+x[0]+'</td><td>'+esc(x[1])+'</td></tr>').join('') + '</table>';
+  el('setSys').innerHTML = '<table class="kv">' + [
+    ['系统名称', s.system_name || '杭申电气生产线智能监控系统'],
+    ['版本', s.version || 'V1.1.0'],
+    ['部署主机', (s.host||'—') + ' · ' + (s.platform||'—')],
+    ['Python', s.python || '—'],
+    ['启动时间', s.started_at || '—'],
+    ['数据存储', s.db_path || '本地 SQLite']
+  ].map(x=>'<tr><td>'+x[0]+'</td><td>'+esc(x[1])+'</td></tr>').join('') + '</table>';
+}
+
+/* ================= 关于与帮助 ================= */
+function renderAbout(){
+  const s = SYS || {};
+  el('aboutSys').innerHTML = '<table class="kv">' + [
+    ['系统名称', s.system_name || '生产线智能监控系统'],
+    ['版本', s.version || 'V1.1.0'],
+    ['所属单位', '杭州之江开关股份有限公司 · 制造运营部'],
+    ['访问方式', 'http://' + (location.host || '192.168.0.220:8765') + '/'],
+    ['当前账号', ((ME&&ME.username)||'—') + '（' + ((ME&&ME.role)||'') + '）']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('') + '</table>';
+  el('aboutTips').innerHTML = '<ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:2">'
+    + '<li>总览页 KPI 卡片可点击，直达对应筛选结果</li>'
+    + '<li>设备表任意行可点击，进入单台设备详情与定向 AI 分析</li>'
+    + '<li>预警、事件中的“设备 ›”可跳转到关联设备</li>'
+    + '<li>顶栏搜索框支持设备名、状态、预警与事件关键词</li>'
+    + '<li>报表中心可生成当前时段的正式监控报告</li></ul>';
+  el('aboutFaq').innerHTML = '<table class="kv">' + [
+    ['页面打不开？','确认与部署主机同一内网、主机已开机、浏览器允许弹出窗口'],
+    ['提示会话过期？','登录有效期 12 小时，重新登录即可'],
+    ['显示“数据接口读取失败”？','源端生产接口异常（本系统正常），请联系数据源系统负责人'],
+    ['AI 分析没反应？','首次需 10-30 秒；连续失败会自动降级为本地规则并标注'],
+    ['忘记密码？','由系统管理员在服务器 config.json 的 auth.users 中重置']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('') + '</table>';
+}
+
+/* ================= AI ================= */
+async function loadAI(){
+  try{
+    const [c,h] = await Promise.all([fetch('/api/ai/config',{cache:'no-store'}), fetch('/api/ai/history',{cache:'no-store'})]);
+    if(c.status===401){ location.href='/login'; return; }
+    AICFG = await c.json(); AIHIST = await h.json();
+    el('aiModelPill').textContent = AICFG.model || 'deepseek';
+    el('fAiDot').className = 'dot' + (AICFG.api_key_configured?'':' off');
+    el('fAi').textContent = AICFG.api_key_configured ? 'AI 引擎在线' : 'AI 引擎未配置';
+    renderAI(); renderSettings();
+  }catch(e){ el('aiStatus').textContent = 'AI 配置读取失败：' + e.message; }
+}
+function renderAI(){
+  if(!AICFG) return;
+  const state = !AICFG.enabled ? '未启用（本地规则运行）'
+    : !AICFG.api_key_configured ? '已启用但缺少服务器 API Key'
+    : AICFG.circuit_open ? '云端熔断，本地规则降级中' : '运行正常，可人工生成';
+  el('aiStatus').textContent = '状态：'+state+' · 服务商：'+AICFG.provider+' · 模型：'+AICFG.model+' · 自动分析：'+(AICFG.auto_summary?'开启':'关闭')+' · 数据边界：'+(AICFG.send_raw_sources?'包含原始数据':'仅结构化指标');
+  el('aiCount').textContent = AIHIST.length + ' 条';
+  const openKeys = new Set([...el('aiHistory').querySelectorAll('details[open]')].map(x=>x.dataset.key));
+  el('aiHistory').innerHTML = AIHIST.length ? AIHIST.map(x=>
+    '<details class="ai-item" data-key="'+esc(x.created_at)+'"><summary>'+esc(x.created_at)+' · '+esc(x.model)+(x.degraded?' · 本地降级':'')+'</summary><div class="md">'+mdRender(x.summary)+'</div><small>发送范围：'+esc(x.data_sent)+'</small></details>').join('')
+    : '<div class="empty">尚无 AI 分析历史</div>';
+  el('aiHistory').querySelectorAll('details').forEach(d=>{ if(openKeys.has(d.dataset.key)) d.open = true; });
+  if(AIHIST[0]){
+    el('aiLatest').innerHTML = mdRender(AIHIST[0].summary);
+    el('aiLatestMeta').textContent = AIHIST[0].created_at + ' · ' + AIHIST[0].model;
+  }
+}
+async function runAI(focus){
+  if(!PERMS.ai){ toast('当前账号无 AI 分析权限'); return; }
+  const btns = ['aiRun','aiRunTop','unitAi'].map(id=>el(id)).filter(Boolean);
+  const labels = btns.map(b=>b.textContent);
+  btns.forEach(b=>{ b.disabled = true; b.textContent = 'AI 分析中…约 10-30 秒'; });
+  try{
+    const r = await fetch('/api/ai/summary',{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(focus?{focus:focus}:{})});
+    if(r.status===401){ location.href='/login'; return; }
+    const d = await r.json();
+    if(d.ok){
+      el('modalTitle').textContent = 'AI 分析结果 · ' + d.model + (focus ? ' · ' + focus : '');
+      el('modalBody').innerHTML = mdRender(d.summary);
+      el('modal').style.display = 'flex';
+      await loadAI();
+    }else{ toast(d.error || 'AI 分析未生成', 6000); await loadAI(); }
+  }catch(e){ toast('AI 分析请求失败：' + e.message, 6000); }
+  finally{
+    btns.forEach((b,i)=>{ b.disabled = false; b.textContent = labels[i]; });
+  }
+}
+el('aiRun').onclick = () => runAI();
+el('aiRunTop').onclick = () => runAI();
+
+/* ---------- AI 工作台：Tab / 生产日报 / 数据问答 / 异常排查 ---------- */
+let AIREPORTS = [], ASKHIST = [];
+function switchAiTab(name){
+  document.querySelectorAll('.ai-tab').forEach(x=>x.classList.toggle('on', x.dataset.tab===name));
+  document.querySelectorAll('.ai-panel').forEach(p=>p.classList.toggle('on', p.id==='aiP-'+name));
+  if(name==='report') loadReports();
+  if(name==='ask'){ if(!ASKHIST.length) loadAskHistory(); renderAsk(); }
+}
+document.querySelectorAll('.ai-tab').forEach(t=>{ t.onclick = () => switchAiTab(t.dataset.tab); });
+
+function renderReportInfo(){
+  const d = ST;
+  el('reportInfo').innerHTML = '<table class="kv">'+[
+    ['数据来源','本地快照 + 事件 + 十分钟总结'],
+    ['覆盖区间','当日 00:00 至最近一次采集'],
+    ['当前设备', (d?d.units.length:0) + ' 台'],
+    ['当前提醒', (d?(d.alerts||[]).length:0) + ' 条'],
+    ['采集状态', d && d.complete ? '三接口完整' : '部分接口异常'],
+    ['数据边界','仅结构化指标，不含原始响应']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</table>';
+}
+async function loadReports(){
+  renderReportInfo();
+  try{
+    const r = await fetch('/api/ai/reports?type=daily',{cache:'no-store'});
+    if(r.status===401){ location.href='/login'; return; }
+    AIREPORTS = await r.json();
+    el('reportCount').textContent = AIREPORTS.length + ' 份';
+    el('reportHistory').innerHTML = AIREPORTS.length ? AIREPORTS.map(x=>
+      '<details class="ai-item"><summary>'+esc(x.created_at)+' · '+esc(x.ref||'')+' · '+esc(x.model||'')+'</summary><div class="md">'+mdRender(x.report)+'</div></details>').join('')
+      : '<div class="empty">尚无历史日报</div>';
+    if(AIREPORTS[0]){
+      el('reportBody').innerHTML = mdRender(AIREPORTS[0].report);
+      el('reportMeta').textContent = AIREPORTS[0].created_at + ' · ' + AIREPORTS[0].model;
+    }
+  }catch(e){ /* 静默 */ }
+}
+el('aiReportRun').onclick = async () => {
+  const btn = el('aiReportRun'), old = btn.textContent;
+  btn.disabled = true; btn.textContent = '日报生成中…约 20-40 秒';
+  try{
+    const r = await fetch('/api/ai/report',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    if(r.status===401){ location.href='/login'; return; }
+    const d = await r.json();
+    if(d.ok){
+      el('reportBody').innerHTML = mdRender(d.report);
+      el('reportMeta').textContent = d.created_at + ' · ' + d.model + ' · ' + d.date;
+      toast('今日日报已生成并归档', 3000);
+      switchAiTab('report'); await loadReports();
+    } else toast(d.error || '日报生成失败', 6000);
+  }catch(e){ toast('日报生成失败：'+e.message, 6000); }
+  finally{ btn.disabled = false; btn.textContent = old; }
+};
+
+async function loadAskHistory(){
+  try{
+    const r = await fetch('/api/ai/reports?type=ask',{cache:'no-store'});
+    if(r.status===401){ location.href='/login'; return; }
+    const arr = await r.json();
+    ASKHIST = arr.slice(0,5).reverse().flatMap(x=>[{role:'user',text:x.ref},{role:'ai',text:x.report,meta:x.model}]);
+  }catch(e){ /* 静默 */ }
+}
+function renderAsk(){
+  el('askLog').innerHTML = ASKHIST.length ? ASKHIST.map(m=>m.role==='user'
+    ? '<div class="event" style="border-left:3px solid #0899d6"><b>我：</b>'+esc(m.text)+'</div>'
+    : '<div class="event" style="border-left:3px solid #7c5cff"><b>AI 助手</b>'+(m.meta?' <small>'+esc(m.meta)+'</small>':'')+'<div class="md" style="margin-top:5px">'+mdRender(m.text)+'</div></div>').join('')
+    : '<div class="empty">可以问：当前哪台设备最需要关注、今天各设备投入增量、提醒优先级…</div>';
+  el('askLog').scrollTop = el('askLog').scrollHeight;
+}
+async function askAI(q){
+  q = (q||'').trim(); if(!q) return;
+  ASKHIST.push({role:'user',text:q}); renderAsk(); el('askInput').value='';
+  el('askSend').disabled = true;
+  try{
+    const r = await fetch('/api/ai/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+    if(r.status===401){ location.href='/login'; return; }
+    const d = await r.json();
+    ASKHIST.push(d.ok ? {role:'ai',text:d.report,meta:d.model} : {role:'ai',text:d.error||'分析失败'});
+  }catch(e){ ASKHIST.push({role:'ai',text:'请求失败：'+e.message}); }
+  finally{ el('askSend').disabled = false; renderAsk(); }
+}
+el('askSend').onclick = () => askAI(el('askInput').value);
+el('askInput').onkeydown = e => { if(e.key==='Enter') askAI(el('askInput').value); };
+function askExample(node){ el('askInput').value = node.textContent.trim(); askAI(el('askInput').value); }
+
+async function explainAlert(key){
+  if(!PERMS.ai){ toast('当前账号无 AI 分析权限'); return; }
+  el('modalTitle').textContent = 'AI 异常排查';
+  el('modalBody').innerHTML = '<p class="muted">正在结合该提醒证据、关联设备与今日运行情况分析，约 15-30 秒…</p>';
+  el('modal').style.display = 'flex';
+  try{
+    const r = await fetch('/api/ai/explain',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+    if(r.status===401){ location.href='/login'; return; }
+    const d = await r.json();
+    if(d.ok){ el('modalTitle').textContent = 'AI 排查建议 · ' + (d.title||''); el('modalBody').innerHTML = mdRender(d.report); }
+    else el('modalBody').innerHTML = '<p class="muted">'+esc(d.error||'分析失败')+'</p>';
+  }catch(e){ el('modalBody').innerHTML = '<p class="muted">请求失败：'+esc(e.message)+'</p>'; }
+}
+el('modalClose').onclick = () => el('modal').style.display = 'none';
+el('modal').onclick = e => { if(e.target === el('modal')) el('modal').style.display = 'none'; };
+document.addEventListener('keydown', e => { if(e.key === 'Escape') el('modal').style.display = 'none'; });
+
+/* ================= 报告导出 ================= */
+async function openReport(){
+  const r = await fetch('/api/report.md',{cache:'no-store'});
+  if(r.status===401){ location.href='/login'; return; }
+  if(!r.ok) throw new Error('报告尚未准备好');
+  const text = await r.text();
+  const w = window.open('','_blank');
+  if(!w) throw new Error('浏览器拦截了新窗口');
+  const safe = text.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  w.document.write('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>生产线监控报告</title><style>body{font:15px/1.7 system-ui,"PingFang SC",sans-serif;max-width:960px;margin:32px auto;padding:0 22px;color:#1c2733;background:#fff}pre{white-space:pre-wrap;word-break:break-word;font:inherit}.bar{display:flex;gap:12px;align-items:center;border-bottom:1px solid #d8e0e8;padding-bottom:12px;margin-bottom:16px}.bar button{border:1px solid #b9c8d6;background:#eef3f8;border-radius:8px;padding:7px 14px;cursor:pointer;color:#1c2733}.bar small{color:#68788a}</style></head><body><div class="bar"><strong>生产线监控报告</strong><button onclick="window.print()">打印 / 存 PDF</button><button id="dl">下载 .md</button><small>操作人：' + esc((ME&&ME.name)||'') + '</small></div><pre>' + safe + '</pre><script>document.getElementById("dl").onclick=function(){const t=document.querySelector("pre").textContent;const b=new Blob([t],{type:"text/markdown;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="生产线报告-"+new Date().toISOString().slice(0,10)+".md";a.click()};<\/script></body></html>');
+  w.document.close();
+  setTimeout(()=>{ loadLogs(true); }, 1200);
+}
+el('export').onclick = async () => { try{ await openReport(); }catch(e){ toast('Markdown 报告暂不可用：' + e.message); } };
+el('repGen').onclick = async () => { try{ await openReport(); }catch(e){ toast('报告生成失败：' + e.message); } };
+el('linkRefresh').onclick = () => refresh(true);
+el('sysRefresh').onclick = () => loadSystem();
+
+/* ================= 操作日志（仅管理员） ================= */
+async function loadLogs(silent){
+  if(!isAdmin()) return;
+  try{
+    const r = await fetch('/api/oplogs',{cache:'no-store'});
+    if(r.status===401){ location.href='/login'; return; }
+    if(r.status===403){ if(!silent) toast('仅管理员可查看操作日志'); return; }
+    LOGS = await r.json();
+    const f = el('logFilter') ? el('logFilter').value : '';
+    const list = f ? LOGS.filter(x=>x.action===f) : LOGS;
+    el('logBody').innerHTML = list.slice().reverse().map(x=>'<tr><td>'+esc(x.at)+'</td><td>'+esc(x.user)+'</td><td>'+esc(x.action)+'</td><td>'+esc(x.detail||'—')+'</td></tr>').join('') || '<tr><td colspan="4"><div class="empty">暂无操作日志</div></td></tr>';
+    renderReports();
+  }catch(e){ el('logBody').innerHTML = '<tr><td colspan="4"><div class="empty">日志读取失败</div></td></tr>'; }
+}
+el('logRefresh').onclick = () => loadLogs();
+el('logFilter').onchange = () => loadLogs();
+
+/* ================= 启动 ================= */
+(async function boot(){
+  const ok = await loadMe();
+  if(!ok) return;
+  buildNav(); route();
+  el('sevFilter').onchange = renderAlerts;
+  el('srcFilter').onchange = renderAlerts;
+  el('alertReadAll').onclick = () => markRead(null, true);
+  el('statusFilter').onchange = renderUnits;
+  el('eventFilter').onchange = renderEvents;
+  el('device').onchange = drawChart;
+  el('metric').onchange = drawChart;
+  await loadAI();
+  await loadSystem();
+  await loadLogs(true);
+  await refresh();
+})();
+</script>
+</body></html>
